@@ -1,0 +1,14 @@
+{
+  "dependencies": {
+    "@absinthe/socket": "^0.1.10",
+    "@absinthe/socket-apollo-link": "^0.1.11",
+    "apollo-cache-inmemory": "^1.2.7",
+    "apollo-client": "^2.3.8",
+    "babel-preset-env": "^1.7.0",
+    "babel-register": "^6.26.0",
+    "graphql": "^0.13.2",
+    "graphql-tag": "^2.9.2",
+    "phoenix-channels": "^1.0.0",
+    "shelljs": "^0.8.2"
+  }
+}

@@ -1,0 +1,2 @@
+"use strict";function _interopDefault(e){return e&&"object"==typeof e&&"default"in e?e.default:e}var _newArrowCheck=_interopDefault(require("babel-runtime/helpers/newArrowCheck")),utilsComposite=require("@jumpn/utils-composite"),_this=void 0,find=function(e,t,i){return _newArrowCheck(this,_this),e.find(utilsComposite.hasIn([t],i))}.bind(void 0);module.exports=find;
+//# sourceMappingURL=find.js.map
