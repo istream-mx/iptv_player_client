@@ -50,12 +50,14 @@ apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
   }
 }` , variables: { macAddress: MAC_ADDRESS}}).subscribe({
   next(data){
-    console.log(data)
+
     let params = data.data.playback
     if(params.error){
       shell.echo(params.error)
     }else{
-      console.log(shell.exec(`omxplayer ${params.url} --timeout ${params.timeout} -b &`))
+      let process = shell.exec('ps -A | grep -c omxplayer').stdout.replace(/\n/g, '')
+      if(process > 0) console.log(shell.exec(`omxplayer ${params.url} --timeout ${params.timeout} -b &`))
+      else console.log("ya esta inicializado el player")
     }
   }
 })
@@ -103,7 +105,7 @@ function execute_cmd(action){
   switch (action) {
     case "restart":
       console.log(action)
-      //shell.exec('sudo reboot now' )
+      shell.exec('sudo reboot now' )
       break;
     case "stop":
       shell.exec('killall -s 9 omxplayer')
