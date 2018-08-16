@@ -27,18 +27,18 @@ const apolloClient = new ApolloClient({
 });
 
 //subscripcion cuando se agrega  o actualiza el dispositivo
-apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
-  playerLoaded(macAddress: $macAddress){
-    macAddress
-    name
-    live_stream_id
-  }
-}` , variables: { macAddress: MAC_ADDRESS}}).subscribe({
-  next(data){
-    let device = data.data.playerLoaded
-    console.log(data)
-  }
-})
+// apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
+//   playerLoaded(macAddress: $macAddress){
+//     macAddress
+//     name
+//     live_stream_id
+//   }
+// }` , variables: { macAddress: MAC_ADDRESS}}).subscribe({
+//   next(data){
+//     let device = data.data.playerLoaded
+//     console.log(data)
+//   }
+// })
 
 //subscripcion para reproducir
 apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
@@ -50,12 +50,13 @@ apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
   }
 }` , variables: { macAddress: MAC_ADDRESS}}).subscribe({
   next(data){
-
+    console.log(data)
     let params = data.data.playback
     if(params.error){
       shell.echo(params.error)
     }else{
       let process = shell.exec('ps -A | grep -c omxplayer').stdout.replace(/\n/g, '')
+      console.log(process)
       if(process > 0) console.log(shell.exec(`omxplayer ${params.url} --timeout ${params.timeout} -b &`))
       else console.log("ya esta inicializado el player")
     }
@@ -164,7 +165,6 @@ function sendError(type,message){
   }`, variables: {macAddress: MAC_ADDRESS, type: type, message: message }})
 }
 
-sendError("test","test")
 
 function updateScript(){
   if (!shell.which('git')) {
