@@ -10,9 +10,9 @@ import {Socket as PhoenixSocket} from "phoenix-channels";
 
 
 const TENANT = "dGVzdA=="
-// const MAC_ADDRESS = shell.cat("/sys/class/net/eth0/address")
-const MAC_ADDRESS = "6c:96:cf:db:ab:64"
-const GRAPHQL_ENDPOINT = 'ws://localhost:4000/socket';
+const MAC_ADDRESS = shell.cat("/sys/class/net/eth0/address").replace(/\n/g, '')
+//const MAC_ADDRESS = "6c:96:cf:db:ab:64"
+const GRAPHQL_ENDPOINT = 'ws://192.168.50.114:4000/socket';
 const SLUG = "canal6"
 const PLATFORM = "raspberry"
 
