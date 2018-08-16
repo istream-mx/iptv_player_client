@@ -52,7 +52,7 @@ apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
     if(params.error){
       shell.echo(params.error)
     }else{
-      shell.exec(`omxplayer ${params.url} --timeout ${params.timeout} -b &`)
+      console.log(shell.exec(`omxplayer ${params.url} --timeout ${params.timeout} -b &`))
     }
   }
 })
@@ -60,13 +60,39 @@ apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
 
 
 //subscripcion cuando se executa un comando
-apolloClient.subscribe({query:  gql `subscription($macAddress: String!, $cmd: String!){
-  executeAction(macAddress: $macAddress, cmd: $cmd)
-}` , variables: { macAddress: MAC_ADDRESS, cmd: "restart" }}).subscribe({
+apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
+  executeAction(macAddress: $macAddress)
+}` , variables: { macAddress: MAC_ADDRESS}}).subscribe({
   next(data){
     console.log(data)
     execute_cmd(data.data.executeAction)
   }})
+
+
+apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
+    errorHandler(macAddress: $macAddress){
+      message
+      type
+      macAddress
+    }
+  }` , variables: { macAddress: MAC_ADDRESS }}).subscribe({
+    next(data){
+      console.log(data)
+    }})
+
+apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
+    verifyStatus(macAddress: $macAddress){
+      macAddress
+      status
+      error {
+        type
+        message
+      }
+        }
+      }` , variables: { macAddress: MAC_ADDRESS }}).subscribe({
+        next(data){
+          console.log(data)
+        }})
 
 
 
@@ -74,7 +100,7 @@ function execute_cmd(action){
   switch (action) {
     case "restart":
       console.log(action)
-      //shell.exec('sudo reboot now')
+      //shell.exec('sudo reboot now' )
       break;
     case "stop":
       shell.exec('killall -s 9 omxplayer')
@@ -82,7 +108,7 @@ function execute_cmd(action){
       break;
 
     case "updateScript":
-
+        updateScript()
         break;
     default:
       console.log("accion no implementada")
@@ -92,7 +118,7 @@ function execute_cmd(action){
 
 
 
-function updateDevice(apolloClient,mac_address,gql){
+function updateDevice(){
   const ip_details = JSON.parse(shell.exec('curl -s http://ip-api.com/json', {silent:true}).stdout)
   apolloClient.mutate({mutation: gql `mutation($input: InputPlayerDevice!){
     updateDevice(input: $input){
@@ -101,19 +127,59 @@ function updateDevice(apolloClient,mac_address,gql){
       location,
       ip
     }
-  }`, variables: { input: {macAddress: mac_address, ip: ip_details.query, location: `${ip_details.countryCode}-${ip_details.city}-${ip_details.regionName}-${ip_details.timezone}`, live_stream_id: 1 }     }})
+  }`, variables: { input: {macAddress: MAC_ADDRESS, ip: ip_details.query, location: `${ip_details.countryCode}-${ip_details.city}-${ip_details.regionName}-${ip_details.timezone}`, live_stream_id: 1 }     }})
+}
+
+function verifyStatus(){
+  apolloClient.mutate({mutation: gql `mutation($input: InputPlayerDevice!){
+    updateDevice(input: $input){
+      macAddress
+      status
+    }
+  }`, variables: { input: {macAddress: MAC_ADDRESS}     }})
 }
 
 
-function playbackPlayer(apolloClient,mac_address,slug,platform,gql){
+function playbackPlayer(){
   apolloClient.mutate({mutation: gql `mutation($macAddress: String!,$slug: String!, $platform: String!){
     playbackLiveStream(macAddress: $macAddress,slug: $slug, platform: $platform){
       macAddress
     }
-  }`, variables: { macAddress: mac_address, slug: slug,  platform: platform }
+  }`, variables: { macAddress: MAC_ADDRESS, slug: SLUG,  platform: PLATFORM }
 })
 }
 
+function sendError(type,message){
+  apolloClient.mutate({mutation: gql `mutation($macAddress: String, $type: String, $message: String){
+    errorHandler(macAddress: $macAddress, type: $type, message: $message){
+      type
+      message
+      macAddress
+    }
+  }`, variables: {macAddress: MAC_ADDRESS, type: type, message: message }})
+}
+
+sendError("test","test")
+
+function updateScript(){
+  if (!shell.which('git')) {
+    shell.exec('sudo apt-get update')
+    shell.exe('sudo apt-get install git')
+  }
+  if (!shell.which('node')) {
+    shell.exec('sudo apt-get update')
+    shell.exe('sudo apt-get install nodejs')
+  }
+  console.log("updating...")
+  let updateOut = shell.exec('git pull origin')
+  if(updateOut.code != 0){
+    updateOut.stderr
+  }else{
+    shell.exec('npm install')
+    //shell.exit('sudo reboot now')
+    shell.exit(1)
+  }
+}
 
 
 //schedules
@@ -121,11 +187,11 @@ function playbackPlayer(apolloClient,mac_address,slug,platform,gql){
 //schedule para actualizar o agregar el dispositivo [seg min hr day month dayweek]
 
 //cada 1 hr
-// let scheduleUpdateDevice = schedule.scheduleJob('* * 1 * * *',function(){
-//   updateDevice(apolloClient,MAC_ADDRESS,gql)
+// let scheduleUpdateDevice = schedule.scheduleJob('* */1 * * *',function(){
+//   updateDevice()
 // })
 //
 // //cada 20 seg
 // let schedulePlayback = schedule.scheduleJob('*/20 * * * * *',function(){
-//   playbackPlayer(apolloClient,MAC_ADDRESS,SLUG,PLATFORM,gql)
+//   playbackPlayer()
 // })
