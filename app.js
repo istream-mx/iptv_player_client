@@ -45,9 +45,12 @@ apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
   playback(macAddress: $macAddress){
     mac_address
     error
+    url
+    timeOut
   }
 }` , variables: { macAddress: MAC_ADDRESS}}).subscribe({
   next(data){
+    console.log(data)
     let params = data.data.playback
     if(params.error){
       shell.echo(params.error)
