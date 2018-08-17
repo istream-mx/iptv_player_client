@@ -1,0 +1,25 @@
+{
+  "apps": [{
+    "name": "iptv",
+    "cwd": "/home/pi/Documents/current",
+    "script": "home/pi/Documents/current/client.js",
+    "instances": 4,
+    "exec_mode": "fork",
+    "env": {
+      "PORT": "80"
+    }
+  }],
+  "deploy" : {
+    "production" : {
+      "user" : "pi",
+      "host" : ["localhost"],
+      "ref"  : "origin/master",
+      "repo" : "http://159.89.43.103/tvstream/iptv-client.git",
+      "path" : "/home/pi/Documents",
+      "post-deploy" : "yarn && pm2 startOrGracefulReload /home/pi/Documents/iptv-client/ecosystem.json --env production",
+      "env"  : {
+        "NODE_ENV": "production"
+      }
+    }
+  }
+}
