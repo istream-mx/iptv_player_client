@@ -126,14 +126,10 @@ function playbackPlayer(){
   if(!isPlayback()){
     apolloClient.mutate({mutation: gql `mutation($macAddress: String!,$slug: String!, $platform: String!){
       playbackLiveStream(macAddress: $macAddress,slug: $slug, platform: $platform){
-        type
-    		message
-    		playerDevice{
-    			macAddress
-    			ip
-    			location
-    			liveStreamId
-    		}
+        macAddess
+        url
+        timeOut
+        error
       }
     }`, variables: { macAddress: MAC_ADDRESS, slug: SLUG,  platform: PLATFORM }
   })
