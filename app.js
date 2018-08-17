@@ -126,7 +126,7 @@ function playbackPlayer(){
   if(!isPlayback()){
     apolloClient.mutate({mutation: gql `mutation($macAddress: String!,$slug: String!, $platform: String!){
       playbackLiveStream(macAddress: $macAddress,slug: $slug, platform: $platform){
-        macAddess
+        macAddress
         url
         timeOut
         error
