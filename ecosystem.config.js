@@ -1,7 +1,7 @@
 module.exports = {
   apps : [{
     name      : 'iptv-client',
-    script    : 'app.js',
+    script    : 'client.js',
     env: {
       NODE_ENV: 'development'
     },
