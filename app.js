@@ -10,13 +10,13 @@ import {Socket as PhoenixSocket} from "phoenix-channels";
 
 
 const TENANT = process.env.TENANT
-// const MAC_ADDRESS = shell.cat("/sys/class/net/eth0/address").replace(/\n/g, '')
-const MAC_ADDRESS = "b8:27:eb:ff:8a:67"
+const MAC_ADDRESS = shell.cat("/sys/class/net/eth0/address").replace(/\n/g, '')
+// const MAC_ADDRESS = "b8:27:eb:ff:8a:67"
 const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT
 const SLUG = process.env.SLUG
 const PLATFORM = process.env.PLATFORM
 const PUBLIC_IP_SERVICE = process.env.PUBLIC_IP_SERVICE
-const LIVE_STREAM_ID = process.env.LIVE_STREAM_ID
+const LIVE_STREAM_ID = parseInt(process.env.LIVE_STREAM_ID)
 
 let link = createAbsintheSocketLink(AbsintheSocket.create(
   new PhoenixSocket(GRAPHQL_ENDPOINT, {params: {tenant: TENANT }})
@@ -75,7 +75,6 @@ apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
 
 function execute_cmd(action){
   switch (action) {
-
     case "restart":
       sendNotification("succes", "Se reinicio correctamente el dispositivo.")
       //shell.exec('sudo reboot now' )
@@ -91,7 +90,10 @@ function execute_cmd(action){
       shell.exec("pm2 deploy ecosystem.config.js production --force",function(code, stdout, stderr) {
         if(code != 0){
           sendNotification("error", `Error al actualizar ${stderr}`)
-          execute_cmd(action)
+          setTimeout(function(){
+            //repetir la actualizacion cada 3 minutos si falla
+            execute_cmd(action)
+          }, 3 * 60 * 1000)
         }
         else sendNotification("success", "Se actualizo correctamente el dispositivo.")
       })
@@ -192,6 +194,7 @@ function isPlayback(){
 
 function getPlayerDevice(){
   const ip_details = JSON.parse(shell.exec(`curl -s ${PUBLIC_IP_SERVICE}`, {silent:true}).stdout)
+  console.log(LIVE_STREAM_ID)
   return {
     macAddress: MAC_ADDRESS,
     ip: ip_details.query,
