@@ -9,9 +9,8 @@ import {createAbsintheSocketLink} from "@absinthe/socket-apollo-link";
 import {Socket as PhoenixSocket} from "phoenix-channels";
 
 
-const TENANT = "dGVzdA=="
-//const MAC_ADDRESS = shell.cat("/sys/class/net/eth0/address").replace(/\n/g, '')
-const MAC_ADDRESS = "b8:27:eb:95:3c:c2"
+const TENANT = process.env.TENANT
+const MAC_ADDRESS = shell.cat("/sys/class/net/eth0/address").replace(/\n/g, '')
 const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT
 const SLUG = process.env.SLUG
 const PLATFORM = process.env.PLATFORM
@@ -37,7 +36,7 @@ apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
   }
 }` , variables: { macAddress: MAC_ADDRESS}}).subscribe({
   next(data){
-
+    console.log(data)
     let params = data.data.playback
     playback(params)
   }
@@ -50,6 +49,7 @@ apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
   executeAction(macAddress: $macAddress)
 }` , variables: { macAddress: MAC_ADDRESS}}).subscribe({
   next(data){
+    console.log(data)
     execute_cmd(data.data.executeAction)
   }})
 
@@ -73,23 +73,30 @@ apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
 
 function execute_cmd(action){
   switch (action) {
+
     case "restart":
-      shell.exec('sudo reboot now' )
+      sendNotification("succes", "Se reinicio correctamente el dispositivo.")
+      //shell.exec('sudo reboot now' )
       break;
+
     case "stop":
       shell.exec('sudo killall -s 9 omxplayer')
       shell.exec('sudo killall -s 9 omxplayer.bin')
+      sendNotification("success", "Se detuvo correctamente la reproduccion del contenido.")
       break;
+
     case "updateApp":
       shell.exec("pm2 deploy ecosystem.config.js production --force",function(code, stdout, stderr) {
         if(code != 0){
-          sendError("deploy", `Error al actualizar ${stderr}`)
+          sendNotification("error", `Error al actualizar ${stderr}`)
         }
+        else sendNotification("success", "Se actualizo correctamente el dispositivo.")
       })
       break;
+
     default:
       shell.echo("action not implemented")
-      sendError("action", "action not implemented")
+      sendNotification("error", "action not implemented")
   }
 }
 
@@ -107,7 +114,7 @@ function updateDevice(){
 }
 
 function verifyStatus(){
-  let status = isPlayback() ? "Reproduciendo" : "No Reproduciendo"
+  let status = isPlayback() ? "active" : "inactive"
 
   apolloClient.mutate({mutation: gql `mutation($input: InputDeviceStatus!){
     status(input: $input){
@@ -141,23 +148,26 @@ function playbackPlayer(){
 function playback(params){
   if(params.error){
     shell.echo(params.error)
-    sendError("Playback", params.error)
+    sendNotification("error", params.error)
   }else{
     // let process = shell.exec('ps -A | grep -c omxplayer',{ silent: true }).stdout.replace(/\n/g, '')
     if(!isPlayback()) {
       shell.echo("iniciando reproduccion...")
       let child = shell.exec(`omxplayer ${params.url} --timeout ${params.timeout} -b &`, {async:true})
       child.stdout.on('data', function(data) {
-        sendError("Playback",`No se puede reproducir el live stream ${params.url}`)
+        sendNotification("error",`No se puede reproducir el live stream ${params.url}`)
       });
     }
-    else shell.echo("ya esta inicializado el player")
+    else {
+      shell.echo("Ya se encuentra reproduciendo el contenido.")
+      //sendNotification("success","Ya se encuentra reproduciendo el contenido.")
+    }
   }
 }
 
-function sendError(type,message){
-  apolloClient.mutate({mutation: gql `mutation($input: InputDeviceError){
-    errorHandler(input: $input){
+function sendNotification(type,message){
+  apolloClient.mutate({mutation: gql `mutation($input: InputDeviceNotification){
+    notificationMessage(input: $input){
       type
   		message
   		playerDevice{
@@ -179,7 +189,6 @@ function isPlayback(){
 
 
 function getPlayerDevice(){
-  console.log(PUBLIC_IP_SERVICE)
   const ip_details = JSON.parse(shell.exec(`curl -s ${PUBLIC_IP_SERVICE}`, {silent:true}).stdout)
   return {
     macAddress: MAC_ADDRESS,
@@ -189,7 +198,7 @@ function getPlayerDevice(){
   }
 }
 
-
+updateDevice()
 //schedules
 
 //schedule para actualizar o agregar el dispositivo [seg min hr day month dayweek]
