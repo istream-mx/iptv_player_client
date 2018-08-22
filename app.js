@@ -10,7 +10,8 @@ import {Socket as PhoenixSocket} from "phoenix-channels";
 
 
 const TENANT = process.env.TENANT
-const MAC_ADDRESS = shell.cat("/sys/class/net/eth0/address").replace(/\n/g, '')
+// const MAC_ADDRESS = shell.cat("/sys/class/net/eth0/address").replace(/\n/g, '')
+const MAC_ADDRESS = "b8:27:eb:ff:8a:67"
 const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT
 const SLUG = process.env.SLUG
 const PLATFORM = process.env.PLATFORM
