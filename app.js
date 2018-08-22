@@ -11,10 +11,12 @@ import {Socket as PhoenixSocket} from "phoenix-channels";
 
 const TENANT = process.env.TENANT
 const MAC_ADDRESS = shell.cat("/sys/class/net/eth0/address").replace(/\n/g, '')
+// const MAC_ADDRESS = "b8:27:eb:ff:8a:67"
 const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT
 const SLUG = process.env.SLUG
 const PLATFORM = process.env.PLATFORM
 const PUBLIC_IP_SERVICE = process.env.PUBLIC_IP_SERVICE
+const LIVE_STREAM_ID = parseInt(process.env.LIVE_STREAM_ID)
 
 let link = createAbsintheSocketLink(AbsintheSocket.create(
   new PhoenixSocket(GRAPHQL_ENDPOINT, {params: {tenant: TENANT }})
@@ -73,7 +75,6 @@ apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
 
 function execute_cmd(action){
   switch (action) {
-
     case "restart":
       sendNotification("succes", "Se reinicio correctamente el dispositivo.")
       //shell.exec('sudo reboot now' )
@@ -89,6 +90,10 @@ function execute_cmd(action){
       shell.exec("pm2 deploy ecosystem.config.js production --force",function(code, stdout, stderr) {
         if(code != 0){
           sendNotification("error", `Error al actualizar ${stderr}`)
+          setTimeout(function(){
+            //repetir la actualizacion cada 3 minutos si falla
+            execute_cmd(action)
+          }, 3 * 60 * 1000)
         }
         else sendNotification("success", "Se actualizo correctamente el dispositivo.")
       })
@@ -150,7 +155,6 @@ function playback(params){
     shell.echo(params.error)
     sendNotification("error", params.error)
   }else{
-    // let process = shell.exec('ps -A | grep -c omxplayer',{ silent: true }).stdout.replace(/\n/g, '')
     if(!isPlayback()) {
       shell.echo("iniciando reproduccion...")
       let child = shell.exec(`omxplayer ${params.url} --timeout ${params.timeout} -b &`, {async:true})
@@ -190,21 +194,23 @@ function isPlayback(){
 
 function getPlayerDevice(){
   const ip_details = JSON.parse(shell.exec(`curl -s ${PUBLIC_IP_SERVICE}`, {silent:true}).stdout)
+  console.log(LIVE_STREAM_ID)
   return {
     macAddress: MAC_ADDRESS,
     ip: ip_details.query,
     location: `${ip_details.countryCode}-${ip_details.city}-${ip_details.regionName}-${ip_details.timezone}`,
-    live_stream_id: 1
+    live_stream_id: LIVE_STREAM_ID
   }
 }
 
+//para agregar dispositivo al iniciar el script
 updateDevice()
 //schedules
 
 //schedule para actualizar o agregar el dispositivo [seg min hr day month dayweek]
 
-//cada 1 hr
-let scheduleUpdateDevice = schedule.scheduleJob('* */1 * * *',function(){
+//cada 30 min
+let scheduleUpdateDevice = schedule.scheduleJob('0 */30 * * * *',function(){
   updateDevice()
 })
 //
@@ -213,6 +219,6 @@ let schedulePlayback = schedule.scheduleJob('*/20 * * * * *',function(){
   playbackPlayer()
 })
 //cada 20 seg
-let scheduleStatus = schedule.scheduleJob('*/20 * * * * *',function(){
+let scheduleStatus = schedule.scheduleJob('*/15 * * * * *',function(){
   verifyStatus()
 })
