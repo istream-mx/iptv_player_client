@@ -16,6 +16,7 @@ const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT
 const SLUG = process.env.SLUG
 const PLATFORM = process.env.PLATFORM
 const PUBLIC_IP_SERVICE = process.env.PUBLIC_IP_SERVICE
+const LIVE_STREAM_ID = process.env.LIVE_STREAM_ID
 
 let link = createAbsintheSocketLink(AbsintheSocket.create(
   new PhoenixSocket(GRAPHQL_ENDPOINT, {params: {tenant: TENANT }})
@@ -90,6 +91,7 @@ function execute_cmd(action){
       shell.exec("pm2 deploy ecosystem.config.js production --force",function(code, stdout, stderr) {
         if(code != 0){
           sendNotification("error", `Error al actualizar ${stderr}`)
+          execute_cmd(action)
         }
         else sendNotification("success", "Se actualizo correctamente el dispositivo.")
       })
@@ -151,7 +153,6 @@ function playback(params){
     shell.echo(params.error)
     sendNotification("error", params.error)
   }else{
-    // let process = shell.exec('ps -A | grep -c omxplayer',{ silent: true }).stdout.replace(/\n/g, '')
     if(!isPlayback()) {
       shell.echo("iniciando reproduccion...")
       let child = shell.exec(`omxplayer ${params.url} --timeout ${params.timeout} -b &`, {async:true})
@@ -195,17 +196,18 @@ function getPlayerDevice(){
     macAddress: MAC_ADDRESS,
     ip: ip_details.query,
     location: `${ip_details.countryCode}-${ip_details.city}-${ip_details.regionName}-${ip_details.timezone}`,
-    live_stream_id: 1
+    live_stream_id: LIVE_STREAM_ID
   }
 }
 
+//para agregar dispositivo al iniciar el script
 updateDevice()
 //schedules
 
 //schedule para actualizar o agregar el dispositivo [seg min hr day month dayweek]
 
-//cada 1 hr
-let scheduleUpdateDevice = schedule.scheduleJob('* */1 * * *',function(){
+//cada 30 min
+let scheduleUpdateDevice = schedule.scheduleJob('0 */30 * * * *',function(){
   updateDevice()
 })
 //
@@ -214,6 +216,6 @@ let schedulePlayback = schedule.scheduleJob('*/20 * * * * *',function(){
   playbackPlayer()
 })
 //cada 20 seg
-let scheduleStatus = schedule.scheduleJob('*/20 * * * * *',function(){
+let scheduleStatus = schedule.scheduleJob('*/15 * * * * *',function(){
   verifyStatus()
 })
