@@ -12,7 +12,7 @@ module.exports = {
     },
     env_production : {
       NODE_ENV: 'production',
-      TENANT: "dGVzdA==",
+      TENANT: "Y2FuYWw2",
       SLUG: "canal6",
       PLATFORM: "raspberry",
       PUBLIC_IP_SERVICE: "http://ip-api.com/json",
