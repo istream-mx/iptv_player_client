@@ -8,7 +8,7 @@ module.exports = {
       SLUG: "canal6",
       PLATFORM: "raspberry",
       PUBLIC_IP_SERVICE: "http://ip-api.com/json",
-      GRAPHQL_ENDPOINT: 'ws://192.168.50.114:4000/socket'
+      GRAPHQL_ENDPOINT: 'ws://localhost:4000/api/socket'
     },
     env_production : {
       NODE_ENV: 'production',
@@ -16,7 +16,7 @@ module.exports = {
       SLUG: "canal6",
       PLATFORM: "raspberry",
       PUBLIC_IP_SERVICE: "http://ip-api.com/json",
-      GRAPHQL_ENDPOINT: 'ws://192.168.50.114:4000/socket'
+      GRAPHQL_ENDPOINT: 'ws://canal6.iptv.tvstream.mx/api/socket'
     }
   }],
 
