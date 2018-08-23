@@ -157,7 +157,7 @@ function playback(params){
   }else{
     if(!isPlayback()) {
       shell.echo("iniciando reproduccion...")
-      let child = shell.exec(`omxplayer ${params.url} --timeout ${params.timeout} -b &`, {async:true})
+      let child = shell.exec(`omxplayer ${params.url} --timeout ${params.timeout} --vol 600 -b &`, {async:true})
       child.stdout.on('data', function(data) {
         sendNotification("error",`No se puede reproducir el live stream ${params.url}`)
       });
