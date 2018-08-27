@@ -77,7 +77,7 @@ function execute_cmd(action){
   switch (action) {
     case "restart":
       sendNotification("succes", "Se reinicio correctamente el dispositivo.")
-      //shell.exec('sudo reboot now' )
+      shell.exec('sudo reboot now' )
       break;
 
     case "stop":
