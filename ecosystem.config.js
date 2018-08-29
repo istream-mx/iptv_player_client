@@ -5,20 +5,16 @@ module.exports = {
     env: {
       NODE_ENV: 'development',
       TENANT: "dGVzdA==",
-      SLUG: "canal6",
       PLATFORM: "raspberry",
       PUBLIC_IP_SERVICE: "http://ip-api.com/json",
-      GRAPHQL_ENDPOINT: 'ws://localhost:4000/api/socket',
-      LIVE_STREAM_ID: 1
+      GRAPHQL_ENDPOINT: 'ws://localhost:4000/api/socket'
     },
     env_production : {
       NODE_ENV: 'production',
       TENANT: "Y2FuYWw2",
-      SLUG: "canal6",
       PLATFORM: "raspberry",
       PUBLIC_IP_SERVICE: "http://ip-api.com/json",
-      GRAPHQL_ENDPOINT: 'ws://canal6.iptv.tvstream.mx/api/socket',
-      LIVE_STREAM_ID: 1
+      GRAPHQL_ENDPOINT: 'ws://canal6.iptv.tvstream.mx/api/socket'
     }
   }],
 
