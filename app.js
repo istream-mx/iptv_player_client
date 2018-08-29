@@ -11,12 +11,10 @@ import {Socket as PhoenixSocket} from "phoenix-channels";
 
 const TENANT = process.env.TENANT
 const MAC_ADDRESS = shell.cat("/sys/class/net/eth0/address").replace(/\n/g, '')
-// const MAC_ADDRESS = "b8:27:eb:ff:8a:67"
+//const MAC_ADDRESS = "b8:27:eb:ff:8a:67"
 const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT
-const SLUG = process.env.SLUG
 const PLATFORM = process.env.PLATFORM
 const PUBLIC_IP_SERVICE = process.env.PUBLIC_IP_SERVICE
-const LIVE_STREAM_ID = parseInt(process.env.LIVE_STREAM_ID)
 
 let link = createAbsintheSocketLink(AbsintheSocket.create(
   new PhoenixSocket(GRAPHQL_ENDPOINT, {params: {tenant: TENANT }})
@@ -38,7 +36,7 @@ apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
   }
 }` , variables: { macAddress: MAC_ADDRESS}}).subscribe({
   next(data){
-    console.log(data)
+    console.log("playback",data)
     let params = data.data.playback
     playback(params)
   }
@@ -51,7 +49,7 @@ apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
   executeAction(macAddress: $macAddress)
 }` , variables: { macAddress: MAC_ADDRESS}}).subscribe({
   next(data){
-    console.log(data)
+    console.log("cmd",data)
     execute_cmd(data.data.executeAction)
   }})
 
@@ -137,14 +135,14 @@ function verifyStatus(){
 
 function playbackPlayer(){
   if(!isPlayback()){
-    apolloClient.mutate({mutation: gql `mutation($macAddress: String!,$slug: String!, $platform: String!){
-      playbackLiveStream(macAddress: $macAddress,slug: $slug, platform: $platform){
+    apolloClient.mutate({mutation: gql `mutation($macAddress: String!,$platform: String!){
+      playbackLiveStream(macAddress: $macAddress, platform: $platform){
         macAddress
         url
         timeOut
         error
       }
-    }`, variables: { macAddress: MAC_ADDRESS, slug: SLUG,  platform: PLATFORM }
+    }`, variables: { macAddress: MAC_ADDRESS, platform: PLATFORM }
   })
   }
 
@@ -194,12 +192,10 @@ function isPlayback(){
 
 function getPlayerDevice(){
   const ip_details = JSON.parse(shell.exec(`curl -s ${PUBLIC_IP_SERVICE}`, {silent:true}).stdout)
-  console.log(LIVE_STREAM_ID)
   return {
     macAddress: MAC_ADDRESS,
     ip: ip_details.query,
-    location: `${ip_details.countryCode}-${ip_details.city}-${ip_details.regionName}-${ip_details.timezone}`,
-    live_stream_id: LIVE_STREAM_ID
+    location: `${ip_details.countryCode}-${ip_details.city}-${ip_details.regionName}-${ip_details.timezone}`
   }
 }
 
