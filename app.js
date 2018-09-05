@@ -85,6 +85,7 @@ function execute_cmd(action){
       break;
 
     case "updateApp":
+      deleteOldScript()
       shell.exec("pm2 deploy ecosystem.config.js production --force",function(code, stdout, stderr) {
         if(code != 0){
           sendNotification("error", `Error al actualizar ${stderr}`)
@@ -103,7 +104,12 @@ function execute_cmd(action){
   }
 }
 
-
+function deleteOldScript(){
+  shell.exec("sudo rm -rf /home/pi/Documents/scripts")
+  shell.exec("sudo rm -rf /etc/init.d/player.sh")
+  shell.exec("sudo  sed -i '/public_ip/d' /var/spool/cron/crontabs/root")
+  shell.exec("sudo sed -i '/watch/d' /etc/rc.local")
+}
 
 function updateDevice(){
   apolloClient.mutate({mutation: gql `mutation($input: InputPlayerDevice!){
