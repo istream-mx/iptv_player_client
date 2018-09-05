@@ -7,7 +7,7 @@ module.exports = {
       TENANT: "dGVzdA==",
       PLATFORM: "raspberry",
       PUBLIC_IP_SERVICE: "http://ip-api.com/json",
-      GRAPHQL_ENDPOINT: 'ws://localhost:4000/api/socket'
+      GRAPHQL_ENDPOINT: 'ws://192.168.50.114:4000/api/socket'
     },
     env_production : {
       NODE_ENV: 'production',
