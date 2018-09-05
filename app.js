@@ -7,6 +7,20 @@ import schedule from 'node-schedule';
 import * as AbsintheSocket from "@absinthe/socket";
 import {createAbsintheSocketLink} from "@absinthe/socket-apollo-link";
 import {Socket as PhoenixSocket} from "phoenix-channels";
+import omxp from 'omxplayer-controll';
+
+
+
+var opts = {
+    'audioOutput': 'hdmi', //  'hdmi' | 'local' | 'both'
+    'blackBackground': false, //false | true | default: true
+    'disableKeys': true, //false | true | default: false
+    'disableOnScreenDisplay': true, //false | true | default: false
+    'disableGhostbox': true, //false | true | default: false
+    'subtitlePath': '', //default: ""
+    'startAt': 0, //default: 0
+    'startVolume': 0.8 //0.0 ... 1.0 default: 1.0
+};
 
 
 const TENANT = process.env.TENANT
@@ -155,10 +169,17 @@ function playback(params){
   }else{
     if(!isPlayback()) {
       shell.echo("iniciando reproduccion...")
-      let child = shell.exec(`omxplayer ${params.url} --timeout ${params.timeout} --vol 600 -b &`, {async:true})
-      child.stdout.on('data', function(data) {
-        sendNotification("error",`No se puede reproducir el live stream ${params.url}`)
-      });
+      //let child = shell.exec(`omxplayer ${params.url} --timeout ${params.timeout} --vol 600 -b &`, {async:true})
+      //child.stdout.on('data', function(data) {
+        //sendNotification("error",`No se puede reproducir el live stream ${params.url}`)
+    //  });
+      omxp.open(params.url, opts)
+      omxp.on("changeStatus",function(status){
+        console.log('status',status)
+      })
+      omxp.on('aboutToFinish',function(){
+        console.log("file about to finish")
+      })
     }
     else {
       shell.echo("Ya se encuentra reproduciendo el contenido.")
