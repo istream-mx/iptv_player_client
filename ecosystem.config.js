@@ -32,7 +32,7 @@ module.exports = {
       host : '192.168.50.177',
       ref  : 'origin/delete_old_script',
       repo : 'http://159.89.43.103/tvstream/iptv-client.git',
-      path : '/Users/joss/Documents/production',
+      path : '/home/pi/Documents/production',
       'post-deploy' : 'yarn && pm2 reload ecosystem.config.js --env development'
     }
   }
