@@ -7,7 +7,7 @@ module.exports = {
       TENANT: "dGVzdA==",
       PLATFORM: "raspberry",
       PUBLIC_IP_SERVICE: "http://ip-api.com/json",
-      GRAPHQL_ENDPOINT: 'ws://localhost:4000/api/socket'
+      GRAPHQL_ENDPOINT: 'ws://192.168.50.114:4000/api/socket'
     },
     env_production : {
       NODE_ENV: 'production',
@@ -29,11 +29,11 @@ module.exports = {
     },
     development : {
       user : 'pi',
-      host : 'localhost',
-      ref  : 'origin/develop',
+      host : '192.168.50.177',
+      ref  : 'origin/fix_omxplayer',
       repo : 'http://159.89.43.103/tvstream/iptv-client.git',
-      path : '/Users/joss/Documents/production',
-      'post-deploy' : 'yarn && pm2 reload ecosystem.config.js --env development'
+      path : '/home/pi/Documents/production',
+      'post-deploy' : 'yarn && pm2 reload ecosystem.config.js'
     }
   }
 };
