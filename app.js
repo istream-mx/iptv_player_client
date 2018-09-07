@@ -223,7 +223,7 @@ function isPlayback(){
     console.log("duation: ", duration)
   });
   omxp.getPosition(function(err, position){
-    console.log("position: " position)
+    console.log("position: ", position)
   });
 
   let isPlayback = process != 0 ? true : false
