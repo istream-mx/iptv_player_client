@@ -61,7 +61,7 @@ apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
   executeAction(macAddress: $macAddress)
 }` , variables: { macAddress: MAC_ADDRESS}}).subscribe({
   next(data){
-    console.log("Se ejecuto el comando: ", data.data.executeCmd.action)
+    console.log("Se ejecuto el comando: ", data.data.executeAction)
     execute_cmd(data.data.executeAction)
   }})
 
