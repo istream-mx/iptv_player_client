@@ -49,7 +49,6 @@ apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
   }
 }` , variables: { macAddress: MAC_ADDRESS}}).subscribe({
   next(data){
-    console.log("playback",data)
     let params = data.data.playback
     playback(params)
   }
@@ -167,32 +166,16 @@ function playback(params){
     sendNotification("error", params.error)
   }else{
     if(!isPlayback()) {
-      shell.echo("iniciando reproduccion...")
+      console.log("Reproduciendo",params.url)
       //let child = shell.exec(`omxplayer ${params.url} --timeout ${params.timeout} --vol 600 -b &`, {async:true})
       //child.stdout.on('data', function(data) {
         //sendNotification("error",`No se puede reproducir el live stream ${params.url}`)
     //  });
       omxp.open(params.url, opts)
       omxp.on('changeStatus', function(status) {
-        console.log('Status-', status);
+        console.log('Status', status.status);
       });
-      omxp.on('aboutToFinish', function() {
-        console.log('========= About To Finish ==========');
-      });
-      omxp.on('finish', function() {
-        console.log('============= Finished =============');
-        //omxp.open('/home/pi/test1.mp4', opts);
-      });
-      omxp.getStatus(function(err, status){
-        console.log("error get status: ", err)
-        console.log("getStatus: ", status)
-      });
-      // omxp.on("changeStatus",function(status){
-      //   console.log('status',status)
-      // })
-      // omxp.on('aboutToFinish',function(){
-      //   console.log("file about to finish")
-      // })
+
     }
     else {
       shell.echo("Ya se encuentra reproduciendo el contenido.")
@@ -219,11 +202,9 @@ function sendNotification(type,message){
 function isPlayback(){
   let process = shell.exec('ps -A | grep -c omxplayer',{ silent: true }).stdout.replace(/\n/g, '')
 
-  omxp.getDuration(function(err, duration){
-    console.log("duation: ", duration)
-  });
-  omxp.getPosition(function(err, position){
-    console.log("position: ", position)
+  omxp.getStatus(function(err, status){
+    console.log("error get status: ", err)
+    console.log("getStatus: ", status)
   });
 
   let isPlayback = process != 0 ? true : false
@@ -246,6 +227,10 @@ function getPlayerDevice(){
 
 //para agregar dispositivo al iniciar el script
 updateDevice()
+playbackPlayer()
+omxp.on('finish', function() {
+  console.log("se finalizo la transmision ")
+});
 
 //schedules
 
