@@ -173,6 +173,20 @@ function playback(params){
         //sendNotification("error",`No se puede reproducir el live stream ${params.url}`)
     //  });
       omxp.open(params.url, opts)
+      omxp.on('changeStatus', function(status) {
+        console.log('Status', JSON.stringify(status));
+      });
+      omxp.on('aboutToFinish', function() {
+        console.log('========= About To Finish ==========');
+      });
+      omxp.on('finish', function() {
+        console.log('============= Finished =============');
+        omxp.open('/home/pi/test1.mp4', opts);
+      });
+      omxp.getStatus(function(err, status){
+        console.log("error get status: ", err)
+        console.log("getStatus: ", status)
+      });
       // omxp.on("changeStatus",function(status){
       //   console.log('status',status)
       // })
@@ -230,16 +244,7 @@ function getPlayerDevice(){
 
 //para agregar dispositivo al iniciar el script
 updateDevice()
-omxp.on('changeStatus', function(status) {
-  console.log('Status', JSON.stringify(status));
-});
-omxp.on('aboutToFinish', function() {
-  console.log('========= About To Finish ==========');
-});
-omxp.on('finish', function() {
-  console.log('============= Finished =============');
-  omxp.open('/home/pi/test1.mp4', opts);
-});
+
 //schedules
 
 //schedule para actualizar o agregar el dispositivo [seg min hr day month dayweek]
