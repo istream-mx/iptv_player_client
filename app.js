@@ -174,14 +174,14 @@ function playback(params){
     //  });
       omxp.open(params.url, opts)
       omxp.on('changeStatus', function(status) {
-        console.log('Status', JSON.stringify(status));
+        console.log('Status-', status);
       });
       omxp.on('aboutToFinish', function() {
         console.log('========= About To Finish ==========');
       });
       omxp.on('finish', function() {
         console.log('============= Finished =============');
-        omxp.open('/home/pi/test1.mp4', opts);
+        //omxp.open('/home/pi/test1.mp4', opts);
       });
       omxp.getStatus(function(err, status){
         console.log("error get status: ", err)
@@ -218,11 +218,13 @@ function sendNotification(type,message){
 
 function isPlayback(){
   let process = shell.exec('ps -A | grep -c omxplayer',{ silent: true }).stdout.replace(/\n/g, '')
-  omxp.getStatus(function(err, status){
-    console.log("error get status: ", err)
-    console.log("getStatus: ", status)
-  }); //Playing, Paused,
-  omxp.getDuration(function(err, duration){});
+
+  omxp.getDuration(function(err, duration){
+    console.log("duation: ", duration)
+  });
+  omxp.getPosition(function(err, position){
+    console.log("position: " position)
+  });
 
   let isPlayback = process != 0 ? true : false
   // console.log(status)
