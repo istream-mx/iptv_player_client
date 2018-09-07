@@ -17,7 +17,8 @@ var opts = {
     'disableKeys': true, //false | true | default: false
     'disableOnScreenDisplay': true, //false | true | default: false
     'disableGhostbox': true, //false | true | default: false
-    'startVolume': 1.0 //0.0 ... 1.0 default: 1.0
+    'startVolume': 1.0 //0.0 ... 1.0 default: 1.0,
+    'closeOtherPlayers': true
 };
 
 
@@ -203,13 +204,15 @@ function sendNotification(type,message){
 
 function isPlayback(){
   let process = shell.exec('ps -A | grep -c omxplayer',{ silent: true }).stdout.replace(/\n/g, '')
-  omxp.getStatus(function(err,status){
-    console.log("error player",err)
-    console.log("stustus player",status)
-  })
+  omxp.getStatus(function(err, status){
+    console.log("error get status: ", err)
+    console.log("getStatus: ", status)
+  }); //Playing, Paused,
+  omxp.getDuration(function(err, duration){});
+
   let isPlayback = process != 0 ? true : false
   // console.log(status)
-  
+
   // let isPlayback = status == 'Playing' ? true : false
   return isPlayback
 }
@@ -227,6 +230,16 @@ function getPlayerDevice(){
 
 //para agregar dispositivo al iniciar el script
 updateDevice()
+omxp.on('changeStatus', function(status) {
+  console.log('Status', JSON.stringify(status));
+});
+omxp.on('aboutToFinish', function() {
+  console.log('========= About To Finish ==========');
+});
+omxp.on('finish', function() {
+  console.log('============= Finished =============');
+  omxp.open('/home/pi/test1.mp4', opts);
+});
 //schedules
 
 //schedule para actualizar o agregar el dispositivo [seg min hr day month dayweek]
