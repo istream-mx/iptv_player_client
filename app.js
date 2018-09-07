@@ -61,7 +61,7 @@ apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
   executeAction(macAddress: $macAddress)
 }` , variables: { macAddress: MAC_ADDRESS}}).subscribe({
   next(data){
-    console.log("Se ejecuto el comando: ", data.executeCmd.action)
+    console.log("Se ejecuto el comando: ", data.data.executeCmd.action)
     execute_cmd(data.data.executeAction)
   }})
 
@@ -96,6 +96,7 @@ function execute_cmd(action){
     case "stop":
       shell.exec('sudo killall -s 9 omxplayer')
       shell.exec('sudo killall -s 9 omxplayer.bin')
+      console.log("Se detuvo correctamente la reproduccion.")
       sendNotification("success", "Se detuvo correctamente la reproduccion del contenido.")
       break;
 
@@ -108,7 +109,10 @@ function execute_cmd(action){
             execute_cmd(action)
           }, 3 * 60 * 1000)
         }
-        else sendNotification("success", "Se actualizo correctamente el dispositivo.")
+        else {
+          console.log("se actualizo correctamente la aplicacion.")
+          sendNotification("success", "Se actualizo correctamente el dispositivo.")
+        }
       })
       break;
 

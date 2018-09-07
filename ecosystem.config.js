@@ -4,7 +4,7 @@ module.exports = {
     script    : 'client.js',
     error_file: 'err.log',
     out_file: 'out.log',
-    log_type: 'json',
+    // log_type: 'json',
     env: {
       NODE_ENV: 'development',
       TENANT: "dGVzdA==",
