@@ -61,25 +61,28 @@ apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
   executeAction(macAddress: $macAddress)
 }` , variables: { macAddress: MAC_ADDRESS}}).subscribe({
   next(data){
-    console.log("cmd",data)
+    console.log("Se ejecuto el comando: ", data.executeCmd.action)
     execute_cmd(data.data.executeAction)
   }})
 
 
-apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
-    verifyStatus(macAddress: $macAddress){
-      playerDevice{
-        macAddress
-        ip
-        location
-        liveStreamId
-      }
-      status
-        }
-      }` , variables: { macAddress: MAC_ADDRESS }}).subscribe({
-        next(data){
-          shell.echo(data)
-        }})
+// apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
+//     verifyStatus(macAddress: $macAddress){
+//       playerDevice{
+//         macAddress
+//         ip
+//         location
+//         liveStreamId
+//       }
+//       status
+//         }
+//       }` , variables: { macAddress: MAC_ADDRESS }}).subscribe({
+//         next(data){
+//           let status = data.data.verifyStatus.status
+//           console.log("status",data.data.verifyStatus.status)
+//           if()
+//           playbackPlayer()
+//         }})
 
 
 
@@ -111,7 +114,6 @@ function execute_cmd(action){
 
     default:
       shell.echo("action not implemented")
-      sendNotification("error", "action not implemented")
   }
 }
 
@@ -129,19 +131,25 @@ function updateDevice(){
 }
 
 function verifyStatus(){
-  let status = isPlayback() ? "active" : "inactive"
 
-  apolloClient.mutate({mutation: gql `mutation($input: InputDeviceStatus!){
-    status(input: $input){
-      status
-  		playerDevice{
-  			macAddress
-  			ip
-  			location
-  			liveStreamId
-  		}
-    }
-  }`, variables: { input: {playerDevice: getPlayerDevice(), status: status}     }})
+  omxp.getStatus(function(err, status){
+    //let status = isPlayback() ? "active" : "inactive"
+    if(err) console.log(err)
+    console.log("getStatus: ", status)
+    let status = status == "Playing" ? "active" : "inactive"
+
+    apolloClient.mutate({mutation: gql `mutation($input: InputDeviceStatus!){
+      status(input: $input){
+        status
+    		playerDevice{
+    			macAddress
+    			ip
+    			location
+    			liveStreamId
+    		}
+      }
+    }`, variables: { input: {playerDevice: getPlayerDevice(), status: status}     }})
+  });
 }
 
 
@@ -201,12 +209,6 @@ function sendNotification(type,message){
 
 function isPlayback(){
   let process = shell.exec('ps -A | grep -c omxplayer',{ silent: true }).stdout.replace(/\n/g, '')
-
-  omxp.getStatus(function(err, status){
-    console.log("error get status: ", err)
-    console.log("getStatus: ", status)
-  });
-
   let isPlayback = process != 0 ? true : false
   // console.log(status)
 
@@ -230,6 +232,7 @@ updateDevice()
 playbackPlayer()
 omxp.on('finish', function() {
   console.log("se finalizo la transmision ")
+  playbackPlayer()
 });
 
 //schedules
@@ -242,9 +245,9 @@ let scheduleUpdateDevice = schedule.scheduleJob('0 */30 * * * *',function(){
 })
 //
 // //cada 20 seg
-let schedulePlayback = schedule.scheduleJob('*/20 * * * * *',function(){
-  playbackPlayer()
-})
+// let schedulePlayback = schedule.scheduleJob('*/20 * * * * *',function(){
+//   playbackPlayer()
+// })
 //cada 20 seg
 let scheduleStatus = schedule.scheduleJob('*/15 * * * * *',function(){
   verifyStatus()
