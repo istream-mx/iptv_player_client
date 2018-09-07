@@ -202,11 +202,15 @@ function sendNotification(type,message){
 }
 
 function isPlayback(){
-  // let process = shell.exec('ps -A | grep -c omxplayer',{ silent: true }).stdout.replace(/\n/g, '')
-  let status = omxp.getStatus()
-  // let isPlayback = process != 0 ? true : false
-  console.log(status)
-  let isPlayback = status == 'Playing' ? true : false
+  let process = shell.exec('ps -A | grep -c omxplayer',{ silent: true }).stdout.replace(/\n/g, '')
+  omxp.getStatus(function(err,status){
+    console.log("error player",err)
+    console.log("stustus player",status)
+  })
+  let isPlayback = process != 0 ? true : false
+  // console.log(status)
+  
+  // let isPlayback = status == 'Playing' ? true : false
   return isPlayback
 }
 
