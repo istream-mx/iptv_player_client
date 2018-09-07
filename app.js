@@ -17,7 +17,7 @@ var opts = {
     'disableKeys': true, //false | true | default: false
     'disableOnScreenDisplay': true, //false | true | default: false
     'disableGhostbox': true, //false | true | default: false
-    'startVolume': 1.0 //0.0 ... 1.0 default: 1.0,
+    'startVolume': 1.0 ,//0.0 ... 1.0 default: 1.0,
     'closeOtherPlayers': true
 };
 
