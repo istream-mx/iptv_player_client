@@ -136,7 +136,7 @@ function verifyStatus(){
     //let status = isPlayback() ? "active" : "inactive"
     if(err) console.log(err)
     console.log("getStatus: ", status)
-    let status = status == "Playing" ? "active" : "inactive"
+    status = status == "Playing" ? "active" : "inactive"
 
     apolloClient.mutate({mutation: gql `mutation($input: InputDeviceStatus!){
       status(input: $input){
