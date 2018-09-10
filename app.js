@@ -189,7 +189,7 @@ function sendNotification(type,message){
 
 function createLog(type,message){
   apolloClient.mutate({mutation: gql `mutation($macAddress: String, $type: String, $message: String){
-    notificationMessage(macAddress: $macAddress, type: $type, message: $message){
+    createLog(macAddress: $macAddress, type: $type, message: $message){
       type
   		message
       macAddress
