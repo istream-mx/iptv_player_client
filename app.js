@@ -213,6 +213,7 @@ playbackPlayerMutation()
 omxp.on('finish', function() {
   console.log("se finalizo la transmision ")
   sendNotification('info', 'Se detuvo la reproduccion.')
+  createLog("info", 'se detuvo la reproduccion')
   verifyStatus()
   playbackPlayerMutation()
 });
