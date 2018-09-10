@@ -66,8 +66,8 @@ apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
 function execute_cmd(action){
   switch (action) {
     case "restart":
-      sendNotification("succes", "Se reinicio correctamente el dispositivo.")
-      createLog("succes","Se reinicio correctamente el dispositivo.")
+      sendNotification("success", "Se reinicio correctamente el dispositivo.")
+      createLog("success","Se reinicio correctamente el dispositivo.")
       shell.exec('sudo reboot now' )
       break;
 
