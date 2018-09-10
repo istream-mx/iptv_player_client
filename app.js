@@ -54,8 +54,6 @@ apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
   }
 })
 
-
-
 //subscripcion cuando se executa un comando
 apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
   executeAction(macAddress: $macAddress)
@@ -66,32 +64,10 @@ apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
     execute_cmd(data.data.executeAction)
   }})
 
-
-// apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
-//     verifyStatus(macAddress: $macAddress){
-//       playerDevice{
-//         macAddress
-//         ip
-//         location
-//         liveStreamId
-//       }
-//       status
-//         }
-//       }` , variables: { macAddress: MAC_ADDRESS }}).subscribe({
-//         next(data){
-//           let status = data.data.verifyStatus.status
-//           console.log("status",data.data.verifyStatus.status)
-//           if()
-//           playbackPlayer()
-//         }})
-
-
-
 function execute_cmd(action){
   switch (action) {
     case "restart":
       sendNotification("succes", "Se reinicio correctamente el dispositivo.")
-      // createLog("succes", "Se reinicio el dispositivo.")
       shell.exec('sudo reboot now' )
       break;
 
@@ -173,20 +149,16 @@ function playback(params){
   if(params.error){
     shell.echo(params.error)
     sendNotification("error", params.error)
-    
-  }else{
+
+  }
+  else{
     omxp.getStatus(function(err, status){
       if(status != "Playing") {
-        console.log("Url a reproducir:",params.url)
         sendNotification("info", `Url a reproducir ${params.url}`)
         omxp.open(params.url, opts)
       }
-      else {
-        sendNotification("info", `Ya se encuentra reproduciendo.`)
-        // shell.echo("Ya se encuentra reproduciendo el contenido.")
-        //sendNotification("success","Ya se encuentra reproduciendo el contenido.")
-      }
-    }
+      else sendNotification("info", `Ya se encuentra reproduciendo.`)
+    })
   }
 }
 
