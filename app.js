@@ -7,6 +7,19 @@ import schedule from 'node-schedule';
 import * as AbsintheSocket from "@absinthe/socket";
 import {createAbsintheSocketLink} from "@absinthe/socket-apollo-link";
 import {Socket as PhoenixSocket} from "phoenix-channels";
+import omxp from 'omxplayer-controll';
+
+
+
+var opts = {
+    'audioOutput': 'both', //  'hdmi' | 'local' | 'both'
+    'blackBackground': false, //false | true | default: true
+    'disableKeys': true, //false | true | default: false
+    'disableOnScreenDisplay': true, //false | true | default: false
+    'disableGhostbox': true, //false | true | default: false
+    'startVolume': 1.0 ,//0.0 ... 1.0 default: 1.0,
+    'closeOtherPlayers': true
+};
 
 
 const TENANT = process.env.TENANT
@@ -36,40 +49,20 @@ apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
   }
 }` , variables: { macAddress: MAC_ADDRESS}}).subscribe({
   next(data){
-    console.log("playback",data)
     let params = data.data.playback
     playback(params)
   }
 })
-
-
 
 //subscripcion cuando se executa un comando
 apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
   executeAction(macAddress: $macAddress)
 }` , variables: { macAddress: MAC_ADDRESS}}).subscribe({
   next(data){
-    console.log("cmd",data)
+    console.log("Se ejecuto el comando: ", data.data.executeAction)
+    sendNotification("info",`Comando a ejecutar: ${data.data.executeAction}`)
     execute_cmd(data.data.executeAction)
   }})
-
-
-apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
-    verifyStatus(macAddress: $macAddress){
-      playerDevice{
-        macAddress
-        ip
-        location
-        liveStreamId
-      }
-      status
-        }
-      }` , variables: { macAddress: MAC_ADDRESS }}).subscribe({
-        next(data){
-          shell.echo(data)
-        }})
-
-
 
 function execute_cmd(action){
   switch (action) {
@@ -81,26 +74,28 @@ function execute_cmd(action){
     case "stop":
       shell.exec('sudo killall -s 9 omxplayer')
       shell.exec('sudo killall -s 9 omxplayer.bin')
-      sendNotification("success", "Se detuvo correctamente la reproduccion del contenido.")
       break;
 
     case "updateApp":
       deleteOldScript()
       shell.exec("pm2 deploy ecosystem.config.js production --force",function(code, stdout, stderr) {
         if(code != 0){
+          // sendNotification("error", `Error al actualizar ${stderr}`)
           sendNotification("error", `Error al actualizar ${stderr}`)
           setTimeout(function(){
             //repetir la actualizacion cada 3 minutos si falla
             execute_cmd(action)
           }, 3 * 60 * 1000)
         }
-        else sendNotification("success", "Se actualizo correctamente el dispositivo.")
+        else {
+          console.log("se actualizo correctamente la aplicacion.")
+          sendNotification("success", "Se actualizo correctamente el dispositivo.")
+        }
       })
       break;
 
     default:
       shell.echo("action not implemented")
-      sendNotification("error", "action not implemented")
   }
 }
 
@@ -123,25 +118,29 @@ function updateDevice(){
 }
 
 function verifyStatus(){
-  let status = isPlayback() ? "active" : "inactive"
 
-  apolloClient.mutate({mutation: gql `mutation($input: InputDeviceStatus!){
-    status(input: $input){
-      status
-  		playerDevice{
-  			macAddress
-  			ip
-  			location
-  			liveStreamId
-  		}
-    }
-  }`, variables: { input: {playerDevice: getPlayerDevice(), status: status}     }})
+  omxp.getStatus(function(err, status){
+    if(err) console.log(err)
+    console.log("getStatus: ", status)
+    status = status == "Playing" ? "active" : "inactive"
+
+    apolloClient.mutate({mutation: gql `mutation($input: InputDeviceStatus!){
+      status(input: $input){
+        status
+    		playerDevice{
+    			macAddress
+    			ip
+    			location
+    			liveStreamId
+    		}
+      }
+    }`, variables: { input: {playerDevice: getPlayerDevice(), status: status}     }})
+  });
 }
 
 
 function playbackPlayer(){
-  if(!isPlayback()){
-    apolloClient.mutate({mutation: gql `mutation($macAddress: String!,$platform: String!){
+  apolloClient.mutate({mutation: gql `mutation($macAddress: String!,$platform: String!){
       playbackLiveStream(macAddress: $macAddress, platform: $platform){
         macAddress
         url
@@ -150,28 +149,26 @@ function playbackPlayer(){
       }
     }`, variables: { macAddress: MAC_ADDRESS, platform: PLATFORM }
   })
-  }
-
 }
 
 function playback(params){
   if(params.error){
     shell.echo(params.error)
     sendNotification("error", params.error)
-  }else{
-    if(!isPlayback()) {
-      shell.echo("iniciando reproduccion...")
-      let child = shell.exec(`omxplayer ${params.url} --timeout ${params.timeout} --vol 600 -b &`, {async:true})
-      child.stdout.on('data', function(data) {
-        sendNotification("error",`No se puede reproducir el live stream ${params.url}`)
-      });
-    }
-    else {
-      shell.echo("Ya se encuentra reproduciendo el contenido.")
-      //sendNotification("success","Ya se encuentra reproduciendo el contenido.")
-    }
+
+  }
+  else{
+    omxp.getStatus(function(err, status){
+      if(status != "Playing") {
+        sendNotification("info", `Url a reproducir ${params.url}`)
+        omxp.open(params.url, opts)
+      }
+      else sendNotification("info", `Ya se encuentra reproduciendo.`)
+    })
   }
 }
+
+
 
 function sendNotification(type,message){
   apolloClient.mutate({mutation: gql `mutation($input: InputDeviceNotification){
@@ -188,14 +185,6 @@ function sendNotification(type,message){
   }`, variables: {input: {playerDevice: getPlayerDevice(), type: type, message: message }}})
 }
 
-function isPlayback(){
-  let process = shell.exec('ps -A | grep -c omxplayer',{ silent: true }).stdout.replace(/\n/g, '')
-  let isPlayback = process != 0 ? true : false
-  return isPlayback
-}
-
-
-
 function getPlayerDevice(){
   const ip_details = JSON.parse(shell.exec(`curl -s ${PUBLIC_IP_SERVICE}`, {silent:true}).stdout)
   return {
@@ -207,6 +196,14 @@ function getPlayerDevice(){
 
 //para agregar dispositivo al iniciar el script
 updateDevice()
+playbackPlayer()
+omxp.on('finish', function() {
+  console.log("se finalizo la transmision ")
+  sendNotification('info', 'Se detuvo la reproduccion.')
+  verifyStatus()
+  playbackPlayer()
+});
+
 //schedules
 
 //schedule para actualizar o agregar el dispositivo [seg min hr day month dayweek]
@@ -214,11 +211,6 @@ updateDevice()
 //cada 30 min
 let scheduleUpdateDevice = schedule.scheduleJob('0 */30 * * * *',function(){
   updateDevice()
-})
-//
-// //cada 20 seg
-let schedulePlayback = schedule.scheduleJob('*/20 * * * * *',function(){
-  playbackPlayer()
 })
 //cada 20 seg
 let scheduleStatus = schedule.scheduleJob('*/15 * * * * *',function(){

@@ -9,6 +9,7 @@
     "graphql": "^0.13.2",
     "graphql-tag": "^2.9.2",
     "node-schedule": "^1.3.0",
+    "omxplayer-controll": "^0.1.9",
     "phoenix-channels": "^1.0.0",
     "shelljs": "^0.8.2"
   }

@@ -2,6 +2,9 @@ module.exports = {
   apps : [{
     name      : 'iptv-client',
     script    : 'client.js',
+    error_file: 'err.log',
+    out_file: 'out.log',
+    // log_type: 'json',
     env: {
       NODE_ENV: 'development',
       TENANT: "dGVzdA==",
@@ -30,10 +33,10 @@ module.exports = {
     development : {
       user : 'pi',
       host : '192.168.50.177',
-      ref  : 'origin/delete_old_script',
+      ref  : 'origin/fix_omxplayer',
       repo : 'http://159.89.43.103/tvstream/iptv-client.git',
       path : '/home/pi/Documents/production',
-      'post-deploy' : 'yarn && pm2 reload ecosystem.config.js --env development'
+      'post-deploy' : 'yarn && pm2 reload ecosystem.config.js'
     }
   }
 };
