@@ -59,8 +59,7 @@ apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
   executeAction(macAddress: $macAddress)
 }` , variables: { macAddress: MAC_ADDRESS}}).subscribe({
   next(data){
-    console.log("Se ejecuto el comando: ", data.data.executeAction)
-    sendNotification("info",`Comando a ejecutar: ${data.data.executeAction}`)
+    createLog("info",`Comando a ejecutar: ${data.data.executeAction}`)
     execute_cmd(data.data.executeAction)
   }})
 
@@ -68,6 +67,7 @@ function execute_cmd(action){
   switch (action) {
     case "restart":
       sendNotification("succes", "Se reinicio correctamente el dispositivo.")
+      createLog("succes","Se reinicio correctamente el dispositivo.")
       shell.exec('sudo reboot now' )
       break;
 
@@ -80,8 +80,8 @@ function execute_cmd(action){
       deleteOldScript()
       shell.exec("pm2 deploy ecosystem.config.js production --force",function(code, stdout, stderr) {
         if(code != 0){
-          // sendNotification("error", `Error al actualizar ${stderr}`)
           sendNotification("error", `Error al actualizar ${stderr}`)
+          createLog("error", `Error al actualizar ${stderr}`)
           setTimeout(function(){
             //repetir la actualizacion cada 3 minutos si falla
             execute_cmd(action)
@@ -90,12 +90,14 @@ function execute_cmd(action){
         else {
           console.log("se actualizo correctamente la aplicacion.")
           sendNotification("success", "Se actualizo correctamente el dispositivo.")
+          createLog("success", "Se actualizo correctamente el dispositivo.")
         }
       })
       break;
 
     default:
       shell.echo("action not implemented")
+      sendNotification("error", "Accion no implementada")
   }
 }
 
@@ -121,7 +123,6 @@ function verifyStatus(){
 
   omxp.getStatus(function(err, status){
     if(err) console.log(err)
-    console.log("getStatus: ", status)
     status = status == "Playing" ? "active" : "inactive"
 
     apolloClient.mutate({mutation: gql `mutation($input: InputDeviceStatus!){
@@ -139,7 +140,7 @@ function verifyStatus(){
 }
 
 
-function playbackPlayer(){
+function playbackPlayerMutation(){
   apolloClient.mutate({mutation: gql `mutation($macAddress: String!,$platform: String!){
       playbackLiveStream(macAddress: $macAddress, platform: $platform){
         macAddress
@@ -155,15 +156,16 @@ function playback(params){
   if(params.error){
     shell.echo(params.error)
     sendNotification("error", params.error)
+    createLog("error", params.error)
 
   }
   else{
     omxp.getStatus(function(err, status){
       if(status != "Playing") {
-        sendNotification("info", `Url a reproducir ${params.url}`)
+        createLog("info", `Url a reproducir ${params.url}`)
         omxp.open(params.url, opts)
       }
-      else sendNotification("info", `Ya se encuentra reproduciendo.`)
+      else sendNotification("warning", `Ya se encuentra reproduciendo.`)
     })
   }
 }
@@ -185,6 +187,17 @@ function sendNotification(type,message){
   }`, variables: {input: {playerDevice: getPlayerDevice(), type: type, message: message }}})
 }
 
+function createLog(type,message){
+  apolloClient.mutate({mutation: gql `mutation($macAddress: String, $type: String, $message: String){
+    notificationMessage(macAddress: $macAddress, type: $type, message: $message){
+      type
+  		message
+      macAddress
+
+    }
+  }`, variables: {macAddress: MAC_ADDRESS ,type: type, message: message }})
+}
+
 function getPlayerDevice(){
   const ip_details = JSON.parse(shell.exec(`curl -s ${PUBLIC_IP_SERVICE}`, {silent:true}).stdout)
   return {
@@ -196,12 +209,12 @@ function getPlayerDevice(){
 
 //para agregar dispositivo al iniciar el script
 updateDevice()
-playbackPlayer()
+playbackPlayerMutation()
 omxp.on('finish', function() {
   console.log("se finalizo la transmision ")
   sendNotification('info', 'Se detuvo la reproduccion.')
   verifyStatus()
-  playbackPlayer()
+  playbackPlayerMutation()
 });
 
 //schedules
