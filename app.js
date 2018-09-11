@@ -12,8 +12,8 @@ import omxp from 'omxplayer-controll';
 
 
 var opts = {
-    'audioOutput': 'both', //  'hdmi' | 'local' | 'both'
-    'blackBackground': false, //false | true | default: true
+    'audioOutput': 'local', //  'hdmi' | 'local' | 'both'
+    'blackBackground': true, //false | true | default: true
     'disableKeys': true, //false | true | default: false
     'disableOnScreenDisplay': true, //false | true | default: false
     'disableGhostbox': true, //false | true | default: false
@@ -66,7 +66,7 @@ apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
 function execute_cmd(action){
   switch (action) {
     case "restart":
-      sendNotification("success", "Se reinicio correctamente el dispositivo.")
+      sendNotificationMutation("success", "Se reinicio correctamente el dispositivo.")
       createLog("success","Se reinicio correctamente el dispositivo.")
       shell.exec('sudo reboot now' )
       break;
@@ -80,7 +80,7 @@ function execute_cmd(action){
       deleteOldScript()
       shell.exec("pm2 deploy ecosystem.config.js production --force",function(code, stdout, stderr) {
         if(code != 0){
-          sendNotification("error", `Error al actualizar ${stderr}`)
+          sendNotificationMutation("error", `Error al actualizar ${stderr}`)
           createLog("error", `Error al actualizar ${stderr}`)
           setTimeout(function(){
             //repetir la actualizacion cada 3 minutos si falla
@@ -89,23 +89,26 @@ function execute_cmd(action){
         }
         else {
           console.log("se actualizo correctamente la aplicacion.")
-          sendNotification("success", "Se actualizo correctamente el dispositivo.")
+          sendNotificationMutation("success", "Se actualizo correctamente el dispositivo.")
           createLog("success", "Se actualizo correctamente el dispositivo.")
         }
       })
       break;
     case "takeScreenshot":
+      if (!shell.which('raspi2png')) {
+        shell.echo('Instalando raspi2png');
+        shell.exec("curl -sL https://raw.githubusercontent.com/AndrewFromMelbourne/raspi2png/master/installer.sh | bash -")
+      }
       shell.exec("raspi2png -p screenshot.png", function(code,stout,stderr){
         let imageUrl = shell.exec(`curl --upload-file ./screenshot.png https://transfer.sh/screenshot.sh` , {silent:true}).stdout
-        console.log("imagen url:", imageUrl)
-        takeScreenshot(imageUrl)
+        takeScreenshotMutation(imageUrl)
       })
 
       break;
 
     default:
       shell.echo("action not implemented")
-      sendNotification("error", "Accion no implementada")
+      sendNotificationMutation("error", "Accion no implementada")
   }
 }
 
@@ -163,7 +166,7 @@ function playbackPlayerMutation(){
 function playback(params){
   if(params.error){
     shell.echo(params.error)
-    sendNotification("error", params.error)
+    sendNotificationMutation("error", params.error)
     createLog("error", params.error)
 
   }
@@ -177,14 +180,14 @@ function playback(params){
         createLog("error", err)
       }
       else if(status == 'Paused') createLog("info", "Player pausado, conexion lenta.")
-      // else sendNotification("warning", `Ya se encuentra reproduciendo.`)
+      // else sendNotificationMutation("warning", `Ya se encuentra reproduciendo.`)
     })
   }
 }
 
 
 
-function sendNotification(type,message){
+function sendNotificationMutation(type,message){
   apolloClient.mutate({mutation: gql `mutation($input: InputDeviceNotification){
     notificationMessage(input: $input){
       type
@@ -210,8 +213,7 @@ function createLog(type,message){
   }`, variables: {macAddress: MAC_ADDRESS ,type: type, message: message }})
 }
 
-function takeScreenshot(imageUrl){
-  console.log(imageUrl)
+function takeScreenshotMutation(imageUrl){
   apolloClient.mutate({mutation: gql `mutation($macAddress: String, $imageUrl: String){
     take_screenshot(macAddress: $macAddress, imageUrl: $imageUrl){
       macAddress
@@ -248,7 +250,7 @@ updateDevice()
 playbackPlayerMutation()
 omxp.on('finish', function() {
   console.log("se finalizo la transmision ")
-  // sendNotification('info', 'Se detuvo la reproduccion.')
+  // sendNotificationMutation('info', 'Se detuvo la reproduccion.')
   createLog("info", 'se detuvo la reproduccion')
   verifyStatus()
   playbackPlayerMutation()
