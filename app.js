@@ -94,6 +94,11 @@ function execute_cmd(action){
         }
       })
       break;
+    case "takeScreenshot":
+      shell.exec("raspi2png -p screenshot.png", function(code,stout,stderr){
+        console.log(stout)
+      })
+      break;
 
     default:
       shell.echo("action not implemented")
@@ -200,6 +205,13 @@ function createLog(type,message){
 
     }
   }`, variables: {macAddress: MAC_ADDRESS ,type: type, message: message }})
+}
+
+function takeScreenshot(imageUrl){
+  console.log(imageUrl)
+  apolloClient.mutate({mutation: gql `mutation($macAddress: String, $imageUrl: String){
+    take_screenshot(macAddress: $macAddress, imageUrl: $imageUrl)
+  }`, variables: {macAddress: MAC_ADDRESS ,imageUrl: imageUrl}})
 }
 
 function getPlayerDevice(){
