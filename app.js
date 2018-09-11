@@ -95,11 +95,13 @@ function execute_cmd(action){
       })
       break;
     case "takeScreenshot":
-      shell.exec("raspi2png -p screenshot.png")
-      shell.exec("curl --upload-file ./scheenshot.png https://transfer.sh/screenshot.sh ", function(code,stout,stderr){
-        console.log(stout)
-        takeScreenshot(stout)
+      shell.exec("raspi2png -p screenshot.png", function(code,stout,stderr){
+        shell.exec(`curl --upload-file ./scheenshot.png https://transfer.sh/screenshot.sh `, function(code,stout,stderr){
+          console.log(stout)
+          takeScreenshot(stout)
+        })
       })
+
       break;
 
     default:
