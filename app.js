@@ -165,6 +165,10 @@ function playback(params){
         createLog("info", `Url a reproducir ${params.url}`)
         omxp.open(params.url, opts)
       }
+      else if(err){
+        createLog("error", err)
+      }
+      else if(status == 'Paused') createLog("info", "Player pausado, conexion lenta.")
       else sendNotification("warning", `Ya se encuentra reproduciendo.`)
     })
   }
@@ -227,6 +231,6 @@ let scheduleUpdateDevice = schedule.scheduleJob('0 */30 * * * *',function(){
   updateDevice()
 })
 //cada 20 seg
-let scheduleStatus = schedule.scheduleJob('*/15 * * * * *',function(){
+let scheduleStatus = schedule.scheduleJob('*/5 * * * * *',function(){
   verifyStatus()
 })
