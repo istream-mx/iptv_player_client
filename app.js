@@ -169,7 +169,7 @@ function playback(params){
         createLog("error", err)
       }
       else if(status == 'Paused') createLog("info", "Player pausado, conexion lenta.")
-      else sendNotification("warning", `Ya se encuentra reproduciendo.`)
+      // else sendNotification("warning", `Ya se encuentra reproduciendo.`)
     })
   }
 }
@@ -250,6 +250,6 @@ let scheduleStatus = schedule.scheduleJob('*/5 * * * * *',function(){
 })
 //cada 20 seg
 let loginfo = schedule.scheduleJob('*/5 * * * * *',function(){
-  getInfo()
+  // getInfo()
   playbackPlayerMutation()
 })
