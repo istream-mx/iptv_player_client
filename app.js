@@ -96,7 +96,7 @@ function execute_cmd(action){
       break;
     case "takeScreenshot":
       shell.exec("raspi2png -p screenshot.png", function(code,stout,stderr){
-        shell.exec(`curl --upload-file ./scheenshot.png https://transfer.sh/screenshot.sh `, function(code,stout,stderr){
+        shell.exec(`curl --upload-file ./screenshot.png https://transfer.sh/screenshot.png `, function(code,stout,stderr){
           console.log(stout)
           takeScreenshot(stout)
         })
