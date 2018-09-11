@@ -249,7 +249,7 @@ let scheduleStatus = schedule.scheduleJob('*/5 * * * * *',function(){
   verifyStatus()
 })
 //cada 20 seg
-let scheduleStatus = schedule.scheduleJob('*/5 * * * * *',function(){
+let loginfo = schedule.scheduleJob('*/5 * * * * *',function(){
   getInfo()
   playbackPlayerMutation()
 })
