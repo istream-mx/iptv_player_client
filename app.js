@@ -222,7 +222,7 @@ function getInfo(){
     mError += err
     mstatus = status
   })
-  createLog("info", `Status: ${status}, position: ${position}, Error: ${mError}`)
+  createLog("info", `Status: ${mStatus}, position: ${mPosition}, Error: ${mError}`)
 }
 
 //para agregar dispositivo al iniciar el script
