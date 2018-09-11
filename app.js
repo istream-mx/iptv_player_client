@@ -96,7 +96,7 @@ function execute_cmd(action){
       break;
     case "takeScreenshot":
       shell.exec("raspi2png -p screenshot.png", function(code,stout,stderr){
-        let imageUrl = shell.exec(`curl --upload-file ./scheenshot.png https://transfer.sh/screenshot.sh` , {silent:true}).stdout
+        let imageUrl = shell.exec(`curl --upload-file ./screenshot.png https://transfer.sh/screenshot.sh` , {silent:true}).stdout
         console.log("imagen url:", imageUrl)
         takeScreenshot(imageUrl)
       })
@@ -213,7 +213,10 @@ function createLog(type,message){
 function takeScreenshot(imageUrl){
   console.log(imageUrl)
   apolloClient.mutate({mutation: gql `mutation($macAddress: String, $imageUrl: String){
-    take_screenshot(macAddress: $macAddress, imageUrl: $imageUrl)
+    take_screenshot(macAddress: $macAddress, imageUrl: $imageUrl){
+      macAddress
+      imageUrl
+    }
   }`, variables: {macAddress: MAC_ADDRESS ,imageUrl: imageUrl}})
 }
 
