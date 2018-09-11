@@ -218,7 +218,7 @@ function getInfo(){
     mPosition = position
     mError = err
   })
-  omxp.gutStatus(function(err, status){
+  omxp.getStatus(function(err, status){
     mError += err
     mstatus = status
   })
