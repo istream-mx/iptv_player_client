@@ -210,13 +210,27 @@ function getPlayerDevice(){
     location: `${ip_details.countryCode}-${ip_details.city}-${ip_details.regionName}-${ip_details.timezone}`
   }
 }
+function getInfo(){
+  let mPosition = ""
+  let mstatus = ""
+  let mError = ""
+  omxp.getPosition(function(err, position){
+    mPosition = position
+    mError = err
+  })
+  omxp.gutStatus(function(err, status){
+    mError += err
+    mstatus = status
+  })
+  createLog("info", `Status: ${status}, position: ${position}, Error: ${mError}`)
+}
 
 //para agregar dispositivo al iniciar el script
 updateDevice()
 playbackPlayerMutation()
 omxp.on('finish', function() {
   console.log("se finalizo la transmision ")
-  sendNotification('info', 'Se detuvo la reproduccion.')
+  // sendNotification('info', 'Se detuvo la reproduccion.')
   createLog("info", 'se detuvo la reproduccion')
   verifyStatus()
   playbackPlayerMutation()
@@ -233,4 +247,9 @@ let scheduleUpdateDevice = schedule.scheduleJob('0 */30 * * * *',function(){
 //cada 20 seg
 let scheduleStatus = schedule.scheduleJob('*/5 * * * * *',function(){
   verifyStatus()
+})
+//cada 20 seg
+let scheduleStatus = schedule.scheduleJob('*/5 * * * * *',function(){
+  getInfo()
+  playbackPlayerMutation()
 })
