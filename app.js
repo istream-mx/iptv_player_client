@@ -66,8 +66,8 @@ apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
 function execute_cmd(action){
   switch (action) {
     case "restart":
-      sendNotification("succes", "Se reinicio correctamente el dispositivo.")
-      createLog("succes","Se reinicio correctamente el dispositivo.")
+      sendNotification("success", "Se reinicio correctamente el dispositivo.")
+      createLog("success","Se reinicio correctamente el dispositivo.")
       shell.exec('sudo reboot now' )
       break;
 
@@ -165,7 +165,11 @@ function playback(params){
         createLog("info", `Url a reproducir ${params.url}`)
         omxp.open(params.url, opts)
       }
-      else sendNotification("warning", `Ya se encuentra reproduciendo.`)
+      else if(err){
+        createLog("error", err)
+      }
+      else if(status == 'Paused') createLog("info", "Player pausado, conexion lenta.")
+      // else sendNotification("warning", `Ya se encuentra reproduciendo.`)
     })
   }
 }
@@ -206,13 +210,28 @@ function getPlayerDevice(){
     location: `${ip_details.countryCode}-${ip_details.city}-${ip_details.regionName}-${ip_details.timezone}`
   }
 }
+function getInfo(){
+  let mPosition = ""
+  let mStatus = ""
+  let mError = ""
+  omxp.getPosition(function(err, position){
+    mPosition = position
+    mError = err
+  })
+  omxp.getStatus(function(err, status){
+    mError += err
+    mStatus = status
+  })
+  createLog("info", `Status: ${mStatus}, position: ${mPosition}, Error: ${mError}`)
+}
 
 //para agregar dispositivo al iniciar el script
 updateDevice()
 playbackPlayerMutation()
 omxp.on('finish', function() {
   console.log("se finalizo la transmision ")
-  sendNotification('info', 'Se detuvo la reproduccion.')
+  // sendNotification('info', 'Se detuvo la reproduccion.')
+  createLog("info", 'se detuvo la reproduccion')
   verifyStatus()
   playbackPlayerMutation()
 });
@@ -226,6 +245,11 @@ let scheduleUpdateDevice = schedule.scheduleJob('0 */30 * * * *',function(){
   updateDevice()
 })
 //cada 20 seg
-let scheduleStatus = schedule.scheduleJob('*/15 * * * * *',function(){
+let scheduleStatus = schedule.scheduleJob('*/5 * * * * *',function(){
   verifyStatus()
+})
+//cada 20 seg
+let loginfo = schedule.scheduleJob('*/5 * * * * *',function(){
+  // getInfo()
+  playbackPlayerMutation()
 })
