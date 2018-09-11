@@ -24,7 +24,7 @@ var opts = {
 
 const TENANT = process.env.TENANT
 const MAC_ADDRESS = shell.cat("/sys/class/net/eth0/address").replace(/\n/g, '')
-// const MAC_ADDRESS = "b8:27:eb:ff:8a:67"
+//const MAC_ADDRESS = "b8:27:eb:ff:8a:67"
 const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT
 const PLATFORM = process.env.PLATFORM
 const PUBLIC_IP_SERVICE = process.env.PUBLIC_IP_SERVICE
@@ -96,10 +96,9 @@ function execute_cmd(action){
       break;
     case "takeScreenshot":
       shell.exec("raspi2png -p screenshot.png", function(code,stout,stderr){
-        shell.exec(`curl --upload-file ./screenshot.png https://transfer.sh/screenshot.png `, function(code,stout,stderr){
-          console.log(stout)
-          takeScreenshot(stout)
-        })
+        let imageUrl = shell.exec(`curl --upload-file ./scheenshot.png https://transfer.sh/screenshot.sh` , {silent:true}).stdout
+        console.log("imagen url:", imageUrl)
+        takeScreenshot(imageUrl)
       })
 
       break;
