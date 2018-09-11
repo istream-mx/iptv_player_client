@@ -220,7 +220,7 @@ function getInfo(){
   })
   omxp.getStatus(function(err, status){
     mError += err
-    mstatus = status
+    mStatus = status
   })
   createLog("info", `Status: ${mStatus}, position: ${mPosition}, Error: ${mError}`)
 }
