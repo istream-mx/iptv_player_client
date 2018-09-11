@@ -212,7 +212,7 @@ function getPlayerDevice(){
 }
 function getInfo(){
   let mPosition = ""
-  let mstatus = ""
+  let mStatus = ""
   let mError = ""
   omxp.getPosition(function(err, position){
     mPosition = position
