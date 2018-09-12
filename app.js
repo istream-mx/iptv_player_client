@@ -28,6 +28,7 @@ const MAC_ADDRESS = shell.cat("/sys/class/net/eth0/address").replace(/\n/g, '')
 const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT
 const PLATFORM = process.env.PLATFORM
 const PUBLIC_IP_SERVICE = process.env.PUBLIC_IP_SERVICE
+const SECONDARY_PUBLIC_IP_SERVICE = process.env.SECONDARY_PUBLIC_IP_SERVICE
 
 let link = createAbsintheSocketLink(AbsintheSocket.create(
   new PhoenixSocket(GRAPHQL_ENDPOINT, {params: {tenant: TENANT }})
@@ -223,12 +224,24 @@ function takeScreenshotMutation(imageUrl){
 }
 
 function getPlayerDevice(){
-  const ip_details = JSON.parse(shell.exec(`curl -s ${PUBLIC_IP_SERVICE}`, {silent:true}).stdout)
-  return {
-    macAddress: MAC_ADDRESS,
-    ip: ip_details.query,
-    location: `${ip_details.countryCode}-${ip_details.city}-${ip_details.regionName}-${ip_details.timezone}`
+  let ip_details ={}
+  try {
+    ip_details = JSON.parse(shell.exec(`curl -s ${PUBLIC_IP_SERVICE}`, {silent:true}).stdout)
+    return {
+      macAddress: MAC_ADDRESS,
+      ip: ip_details.query,
+      location: `${ip_details.countryCode}-${ip_details.city}-${ip_details.regionName}-${ip_details.timezone}`
+    }
   }
+  catch(err) {
+    ip_details = JSON.parse(shell.exec(`curl -s ${SECONDARY_PUBLIC_IP_SERVICE}`, {silent:true}).stdout)
+    return {
+      macAddress: MAC_ADDRESS,
+      ip: ip_details.ip,
+      location: `${ip_details.country}-${ip_details.city}-${ip_details.region}`
+    }
+  }
+
 }
 function getInfo(){
   let mPosition = ""

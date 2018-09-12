@@ -10,6 +10,7 @@ module.exports = {
       TENANT: "dGVzdA==",
       PLATFORM: "raspberry",
       PUBLIC_IP_SERVICE: "http://ip-api.com/json",
+      SECONDARY_PUBLIC_IP_SERVICE: "http://ipinfo.io/json",
       GRAPHQL_ENDPOINT: 'ws://192.168.50.114:4000/api/socket'
     },
     env_production : {
@@ -17,6 +18,7 @@ module.exports = {
       TENANT: "Y2FuYWw2",
       PLATFORM: "raspberry",
       PUBLIC_IP_SERVICE: "http://ip-api.com/json",
+      SECONDARY_PUBLIC_IP_SERVICE: "http://ipinfo.io/json",
       GRAPHQL_ENDPOINT: 'ws://canal6.iptv.tvstream.mx/api/socket'
     }
   }],
