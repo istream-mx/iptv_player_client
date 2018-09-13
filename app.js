@@ -101,6 +101,7 @@ function execute_cmd(action){
       }
       shell.exec("raspi2png -p screenshot.png", function(code,stout,stderr){
         let imageUrl = shell.exec(`curl --upload-file ./screenshot.png https://transfer.sh/screenshot.sh` , {silent:true}).stdout
+        console.log(imageUrl)
         takeScreenshotMutation(imageUrl)
       })
 
