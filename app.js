@@ -219,6 +219,12 @@ function takeScreenshotMutation(imageUrl){
     take_screenshot(macAddress: $macAddress, imageUrl: $imageUrl){
       macAddress
       imageUrl
+      playerDevice{
+        name
+        macAddress
+        crc
+        location
+      }
     }
   }`, variables: {macAddress: MAC_ADDRESS ,imageUrl: imageUrl}})
 }
