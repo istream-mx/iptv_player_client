@@ -101,7 +101,6 @@ function execute_cmd(action){
       }
       shell.exec("raspi2png -p screenshot.png", function(code,stout,stderr){
         let imageUrl = shell.exec(`curl --upload-file ./screenshot.png https://transfer.sh/screenshot.sh` , {silent:true}).stdout
-        console.log(imageUrl)
         takeScreenshotMutation(imageUrl)
       })
 
@@ -219,6 +218,12 @@ function takeScreenshotMutation(imageUrl){
     take_screenshot(macAddress: $macAddress, imageUrl: $imageUrl){
       macAddress
       imageUrl
+      playerDevice{
+        name
+        macAddress
+        crc
+        location
+      }
     }
   }`, variables: {macAddress: MAC_ADDRESS ,imageUrl: imageUrl}})
 }
