@@ -149,7 +149,7 @@ function verifyStatus(){
           liveStreamId
         }
       }
-    }`, variables: { input: {playerDevice: {macAddress: MAC_ADDRESS}, status: status}     }})
+    }`, variables: { input: {playerDevice: {macAddress: MAC_ADDRESS}, status: playback}     }})
 
   })
 
