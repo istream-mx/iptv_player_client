@@ -32,7 +32,7 @@ module.exports = {
     },
     development : {
       user : 'pi',
-      host : '192.168.50.177',
+      host : 'localhost',
       ref  : 'origin/develop',
       repo : 'http://159.89.43.103/tvstream/iptv-client.git',
       path : '/home/pi/Documents/production',
