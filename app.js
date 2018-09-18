@@ -113,6 +113,7 @@ function restart(){
 function update(){
   shell.exec("pm2 deploy ecosystem.config.js production --force",function(code, stdout, stderr) {
     if(code != 0){
+      shell.exec("rm -rf /home/pi/Documents/production/source/.git/index.lock")
       sendNotificationMutation("error", `Error al actualizar ${stderr}`)
       createLogMutation("error", `Error al actualizar ${stderr}`)
     }
