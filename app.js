@@ -166,6 +166,7 @@ function playback(params){
     omxp.getStatus((err,status) => {
       if(status != "Playing"){
         omxp.open(params.url,opts)
+        createLogMutation("info", `url a reproducir: ${params.url}`)
       }
     })
   }
@@ -274,7 +275,7 @@ function getPlayerDevice(){
 omxp.on('finish', function() {
   console.log("se finalizo la transmision ")
   // sendNotificationMutation('info', 'Se detuvo la reproduccion.')
-  createLog("info", 'se detuvo la reproduccion')
+  createLogMutation("info", 'se detuvo la reproduccion')
   verifyStatus()
   playbackPlayerMutation()
 });
