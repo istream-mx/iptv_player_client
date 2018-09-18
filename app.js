@@ -22,6 +22,7 @@ var opts = {
 };
 
 
+
 const TENANT = process.env.TENANT
 const MAC_ADDRESS = shell.cat("/sys/class/net/eth0/address").replace(/\n/g, '')
 //const MAC_ADDRESS = "b8:27:eb:ff:8a:67"
@@ -34,42 +35,46 @@ let link = createAbsintheSocketLink(AbsintheSocket.create(
   new PhoenixSocket(GRAPHQL_ENDPOINT, {params: {tenant: TENANT }})
 ));
 
-
 const apolloClient = new ApolloClient({
   link: link,
   cache: new InMemoryCache()
 });
 
-//subscripcion para reproducir
-apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
-  playback(macAddress: $macAddress){
-    mac_address
-    error
-    url
-    timeOut
-  }
-}` , variables: { macAddress: MAC_ADDRESS}}).subscribe({
-  next(data){
-    let params = data.data.playback
-    playback(params)
-  }
-})
+subscriptions()
+playbackPlayerMutation()
+updateDeviceMutation()
 
-//subscripcion cuando se executa un comando
-apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
-  executeAction(macAddress: $macAddress)
-}` , variables: { macAddress: MAC_ADDRESS}}).subscribe({
-  next(data){
-    createLog("info",`Comando a ejecutar: ${data.data.executeAction}`)
-    execute_cmd(data.data.executeAction)
-  }})
+
+function subscriptions(){
+  //subscripcion para reproducir
+  apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
+    playback(macAddress: $macAddress){
+      mac_address
+      error
+      url
+      timeOut
+    }
+  }` , variables: { macAddress: MAC_ADDRESS}}).subscribe({
+    next(data){
+      let params = data.data.playback
+      playback(params)
+    }
+  })
+
+  //subscripcion cuando se executa un comando
+  apolloClient.subscribe({query:  gql `subscription($macAddress: String!){
+    executeAction(macAddress: $macAddress)
+  }` , variables: { macAddress: MAC_ADDRESS}}).subscribe({
+    next(data){
+      createLogMutation("info",`Comando a ejecutar: ${data.data.executeAction}`)
+      execute_cmd(data.data.executeAction)
+    }})
+}
 
 function execute_cmd(action){
   switch (action) {
     case "restart":
-      sendNotificationMutation("success", "Se reinicio correctamente el dispositivo.")
-      createLog("success","Se reinicio correctamente el dispositivo.")
-      shell.exec('sudo reboot now' )
+      restart()
       break;
 
     case "stop":
@@ -79,32 +84,11 @@ function execute_cmd(action){
 
     case "updateApp":
       deleteOldScript()
-      shell.exec("pm2 deploy ecosystem.config.js production --force",function(code, stdout, stderr) {
-        if(code != 0){
-          sendNotificationMutation("error", `Error al actualizar ${stderr}`)
-          createLog("error", `Error al actualizar ${stderr}`)
-          setTimeout(function(){
-            //repetir la actualizacion cada 3 minutos si falla
-            execute_cmd(action)
-          }, 3 * 60 * 1000)
-        }
-        else {
-          console.log("se actualizo correctamente la aplicacion.")
-          sendNotificationMutation("success", "Se actualizo correctamente el dispositivo.")
-          createLog("success", "Se actualizo correctamente el dispositivo.")
-        }
-      })
+      update()
       break;
-    case "takeScreenshot":
-      if (!shell.which('raspi2png')) {
-        shell.echo('Instalando raspi2png');
-        shell.exec("curl -sL https://raw.githubusercontent.com/AndrewFromMelbourne/raspi2png/master/installer.sh | bash -")
-      }
-      shell.exec("raspi2png -p screenshot.png", function(code,stout,stderr){
-        let imageUrl = shell.exec(`curl --upload-file ./screenshot.png https://transfer.sh/screenshot.sh` , {silent:true}).stdout
-        takeScreenshotMutation(imageUrl)
-      })
 
+    case "takeScreenshot":
+      screenShoot()
       break;
 
     default:
@@ -120,68 +104,69 @@ function deleteOldScript(){
   shell.exec("sudo sed -i '/watch/d' /etc/rc.local")
 }
 
-function updateDevice(){
-  apolloClient.mutate({mutation: gql `mutation($input: InputPlayerDevice!){
-    updateDevice(input: $input){
-      macAddress,
-      name,
-      location,
-      ip
+function restart(){
+  sendNotificationMutation("success", "Se reinicio correctamente el dispositivo.")
+  createLogMutation("success","Se reinicio correctamente el dispositivo.")
+  shell.exec('sudo reboot now' )
+}
+
+function update(){
+  shell.exec("pm2 deploy ecosystem.config.js production --force",function(code, stdout, stderr) {
+    if(code != 0){
+      sendNotificationMutation("error", `Error al actualizar ${stderr}`)
+      createLogMutation("error", `Error al actualizar ${stderr}`)
     }
-  }`, variables: { input: getPlayerDevice()   }})
+    else {
+      console.log("se actualizo correctamente la aplicacion.")
+      sendNotificationMutation("success", "Se actualizo correctamente el dispositivo.")
+      createLogMutation("success", "Se actualizo correctamente el dispositivo.")
+    }
+  })
+}
+
+function screenShoot(){
+  if (!shell.which('raspi2png')) {
+    shell.echo('Instalando raspi2png');
+    shell.exec("curl -sL https://raw.githubusercontent.com/AndrewFromMelbourne/raspi2png/master/installer.sh | bash -")
+  }
+  shell.exec("raspi2png -p screenshot.png", function(code,stout,stderr){
+    let imageUrl = shell.exec(`curl --upload-file ./screenshot.png https://transfer.sh/screenshot.sh` , {silent:true}).stdout
+    takeScreenshotMutation(imageUrl)
+  })
 }
 
 function verifyStatus(){
 
-  omxp.getStatus(function(err, status){
-    if(err) console.log(err)
-    status = status == "Playing" ? "active" : "inactive"
-
+  omxp.getStatus((err,status) => {
+    let playback = status === "Playing" ? "active" : "inactive";
     apolloClient.mutate({mutation: gql `mutation($input: InputDeviceStatus!){
       status(input: $input){
         status
-    		playerDevice{
-    			macAddress
-    			ip
-    			location
-    			liveStreamId
-    		}
+        playerDevice{
+          macAddress
+          ip
+          location
+          liveStreamId
+        }
       }
-    }`, variables: { input: {playerDevice: getPlayerDevice(), status: status}     }})
-  });
-}
+    }`, variables: { input: {playerDevice: {macAddress: MAC_ADDRESS}, status: playback}     }})
 
-
-function playbackPlayerMutation(){
-  apolloClient.mutate({mutation: gql `mutation($macAddress: String!,$platform: String!){
-      playbackLiveStream(macAddress: $macAddress, platform: $platform){
-        macAddress
-        url
-        timeOut
-        error
-      }
-    }`, variables: { macAddress: MAC_ADDRESS, platform: PLATFORM }
   })
+
 }
 
 function playback(params){
+  console.log("playback funtion")
   if(params.error){
     shell.echo(params.error)
     sendNotificationMutation("error", params.error)
-    createLog("error", params.error)
-
+    createLogMutation("error", params.error)
   }
   else{
-    omxp.getStatus(function(err, status){
-      if(status != "Playing") {
-        createLog("info", `Url a reproducir ${params.url}`)
-        omxp.open(params.url, opts)
+    omxp.getStatus((err,status) => {
+      if(status != "Playing"){
+        omxp.open(params.url,opts)
       }
-      else if(err){
-        createLog("error", err)
-      }
-      else if(status == 'Paused') createLog("info", "Player pausado, conexion lenta.")
-      // else sendNotificationMutation("warning", `Ya se encuentra reproduciendo.`)
     })
   }
 }
@@ -203,7 +188,7 @@ function sendNotificationMutation(type,message){
   }`, variables: {input: {playerDevice: getPlayerDevice(), type: type, message: message }}})
 }
 
-function createLog(type,message){
+function createLogMutation(type,message){
   apolloClient.mutate({mutation: gql `mutation($macAddress: String, $type: String, $message: String){
     createLog(macAddress: $macAddress, type: $type, message: $message){
       type
@@ -229,6 +214,21 @@ function takeScreenshotMutation(imageUrl){
   }`, variables: {macAddress: MAC_ADDRESS ,imageUrl: imageUrl}})
 }
 
+
+}
+
+function playbackPlayerMutation(){
+  apolloClient.mutate({mutation: gql `mutation($macAddress: String!,$platform: String!){
+      playbackLiveStream(macAddress: $macAddress, platform: $platform){
+        macAddress
+        url
+        timeOut
+        error
+      }
+    }`, variables: { macAddress: MAC_ADDRESS, platform: PLATFORM }
+  })
+}
+
 function getPlayerDevice(){
   let ip_details ={}
   try {
@@ -240,33 +240,28 @@ function getPlayerDevice(){
     }
   }
   catch(err) {
-    ip_details = JSON.parse(shell.exec(`curl -s ${SECONDARY_PUBLIC_IP_SERVICE}`, {silent:true}).stdout)
+    console.log(err)
+  }
+  if(!ip_details.city){
+    try {
+        ip_details = JSON.parse(shell.exec(`curl -s ${SECONDARY_PUBLIC_IP_SERVICE}`, {silent:true}).stdout)
+        return {
+          macAddress: MAC_ADDRESS,
+          ip: ip_details.ip,
+          location: `${ip_details.country}-${ip_details.city}-${ip_details.region}`
+      }
+    }
+      catch (err) {
+        console.log(err)
+      }
+    }
+  else{
     return {
-      macAddress: MAC_ADDRESS,
-      ip: ip_details.ip,
-      location: `${ip_details.country}-${ip_details.city}-${ip_details.region}`
+      macAddress: MAC_ADDRESS
     }
   }
-
-}
-function getInfo(){
-  let mPosition = ""
-  let mStatus = ""
-  let mError = ""
-  omxp.getPosition(function(err, position){
-    mPosition = position
-    mError = err
-  })
-  omxp.getStatus(function(err, status){
-    mError += err
-    mStatus = status
-  })
-  createLog("info", `Status: ${mStatus}, position: ${mPosition}, Error: ${mError}`)
 }
 
-//para agregar dispositivo al iniciar el script
-updateDevice()
-playbackPlayerMutation()
 omxp.on('finish', function() {
   console.log("se finalizo la transmision ")
   // sendNotificationMutation('info', 'Se detuvo la reproduccion.')
@@ -275,20 +270,15 @@ omxp.on('finish', function() {
   playbackPlayerMutation()
 });
 
-//schedules
+setInterval(function(){ updateDeviceMutation(); }, 600000);
+setInterval(function(){ verifyStatus() }, 5000);
+setInterval(function(){
+  omxp.getStatus((err,status) => {
+    console.log(status)
+    if(status != "Playing"){
+      console.log("iniciando player")
+      playbackPlayerMutation()
+    }
+  })
 
-//schedule para actualizar o agregar el dispositivo [seg min hr day month dayweek]
-
-//cada 30 min
-let scheduleUpdateDevice = schedule.scheduleJob('0 */30 * * * *',function(){
-  updateDevice()
-})
-//cada 20 seg
-let scheduleStatus = schedule.scheduleJob('*/5 * * * * *',function(){
-  verifyStatus()
-})
-//cada 20 seg
-let loginfo = schedule.scheduleJob('*/5 * * * * *',function(){
-  // getInfo()
-  playbackPlayerMutation()
-})
+ }, 5000);
