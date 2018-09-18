@@ -215,7 +215,16 @@ function takeScreenshotMutation(imageUrl){
 }
 
 
-
+function updateDeviceMutation(){
+  apolloClient.mutate({mutation: gql `mutation($input: InputPlayerDevice!){
+    updateDevice(input: $input){
+      macAddress,
+      name,
+      location,
+      ip
+    }
+  }`, variables: { input: getPlayerDevice()   }})
+}
 
 function playbackPlayerMutation(){
   apolloClient.mutate({mutation: gql `mutation($macAddress: String!,$platform: String!){
