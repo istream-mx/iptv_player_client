@@ -284,6 +284,7 @@ omxp.on('finish', function() {
 });
 omxp.on("changeStatus", function(status){
   let playerStatus = status != "Playing" ? "inactive" : "active"
+  console.log(status)
   statusMutation(playerStatus)
   if(status != "Playing"){
     console.log("iniciando player")
