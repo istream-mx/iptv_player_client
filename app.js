@@ -111,9 +111,9 @@ function restart(){
 }
 
 function update(){
+  shell.exec("rm -rf /home/pi/Documents/production/source/.git/index.lock")
   shell.exec("pm2 deploy ecosystem.config.js production --force",function(code, stdout, stderr) {
     if(code != 0){
-      shell.exec("rm -rf /home/pi/Documents/production/source/.git/index.lock")
       sendNotificationMutation("error", `Error al actualizar ${stderr}`)
       createLogMutation("error", `Error al actualizar ${stderr}`)
     }
@@ -140,21 +140,11 @@ function verifyStatus(){
 
   omxp.getStatus((err,status) => {
     let playback = status === "Playing" ? "active" : "inactive";
-    apolloClient.mutate({mutation: gql `mutation($input: InputDeviceStatus!){
-      status(input: $input){
-        status
-        playerDevice{
-          macAddress
-          ip
-          location
-          liveStreamId
-        }
-      }
-    }`, variables: { input: {playerDevice: {macAddress: MAC_ADDRESS}, status: playback}     }})
-
+    statusMutation(playback)
   })
 
 }
+
 
 function playback(params){
   console.log("playback funtion")
@@ -172,8 +162,6 @@ function playback(params){
     })
   }
 }
-
-
 
 function sendNotificationMutation(type,message){
   apolloClient.mutate({mutation: gql `mutation($input: InputDeviceNotification){
@@ -240,6 +228,20 @@ function playbackPlayerMutation(){
   })
 }
 
+function statusMutation(status){
+  apolloClient.mutate({mutation: gql `mutation($input: InputDeviceStatus!){
+    status(input: $input){
+      status
+      playerDevice{
+        macAddress
+        ip
+        location
+        liveStreamId
+      }
+    }
+  }`, variables: { input: {playerDevice: {macAddress: MAC_ADDRESS}, status: status}     }})
+}
+
 function getPlayerDevice(){
   let ip_details ={}
   try {
@@ -280,16 +282,25 @@ omxp.on('finish', function() {
   verifyStatus()
   playbackPlayerMutation()
 });
+omxp.on("changeStatus", function(status){
+  let playerStatus = status != "Playing" ? "inactive" : "active"
+  statusMutation(playerStatus)
+  if(status != "Playing"){
+    console.log("iniciando player")
+    playbackPlayerMutation()
+  }
+})
 
 setInterval(function(){ updateDeviceMutation(); }, 600000);
-setInterval(function(){ verifyStatus() }, 5000);
-setInterval(function(){
-  omxp.getStatus((err,status) => {
-    console.log(status)
-    if(status != "Playing"){
-      console.log("iniciando player")
-      playbackPlayerMutation()
-    }
-  })
-
- }, 5000);
+// setInterval(function(){ verifyStatus() }, 5000);
+// setInterval(function(){
+//   omxp.getStatus((err,status) => {
+//     console.log(status)
+//     verifyStatus()
+//     if(status != "Playing"){
+//       console.log("iniciando player")
+//       playbackPlayerMutation()
+//     }
+//   })
+//
+//  }, 5000);
