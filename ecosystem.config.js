@@ -2,8 +2,6 @@ module.exports = {
   apps : [{
     name      : 'iptv-client',
     script    : 'client.js',
-    error_file: 'err.log',
-    out_file: 'out.log',
     log_type: 'json',
     env: {
       NODE_ENV: 'development',

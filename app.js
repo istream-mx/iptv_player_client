@@ -156,9 +156,7 @@ function playback(params){
   else{
     omxp.open(params.url,opts)
     createLogMutation("info", `url a reproducir: ${params.url}`)
-    omxp.getStatus((err,status) => {
-      if(err) createLogMutation("error", err)
-    })
+    
   }
 }
 
