@@ -275,7 +275,7 @@ function getPlayerDevice(){
 function isPlayback(){
   let isPlayback = false
   let process = shell.exec('ps -A | grep -c omxplayer').stdout.replace(/\n/g, '')
-  if(process > 0) playback = true
+  if(process > 0) isPlayback = true
   // try {
   //   omxp.getStatus((err,status) => {
   //     if(status === "Playing") isPlayback = true
