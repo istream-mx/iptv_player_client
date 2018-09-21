@@ -156,7 +156,7 @@ function playback(params){
   else{
     omxp.open(params.url,opts)
     createLogMutation("info", `url a reproducir: ${params.url}`)
-    
+
   }
 }
 
@@ -274,15 +274,17 @@ function getPlayerDevice(){
 
 function isPlayback(){
   let isPlayback = false
-  try {
-    omxp.getStatus((err,status) => {
-      if(status === "Playing") isPlayback = true
-
-    })
-  } catch (err) {
-    let process = shell.exec('ps -A | grep -c omxplayer').stdout.replace(/\n/g, '')
-    if(process > 0) playback = true
-  }
+  let process = shell.exec('ps -A | grep -c omxplayer').stdout.replace(/\n/g, '')
+  if(process > 0) playback = true
+  // try {
+  //   omxp.getStatus((err,status) => {
+  //     if(status === "Playing") isPlayback = true
+  //
+  //   })
+  // } catch (err) {
+  //
+  // }
+  console.log(isPlayback)
   return isPlayback
 }
 omxp.on('finish', function() {
