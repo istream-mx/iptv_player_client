@@ -274,17 +274,8 @@ function getPlayerDevice(){
 
 function isPlayback(){
   let isPlayback = false
-  let process = shell.exec('ps -A | grep -c omxplayer').stdout.replace(/\n/g, '')
+  let process = shell.exec('ps -A | grep -c omxplayer',{silent:true}).stdout.replace(/\n/g, '')
   if(process > 0) isPlayback = true
-  // try {
-  //   omxp.getStatus((err,status) => {
-  //     if(status === "Playing") isPlayback = true
-  //
-  //   })
-  // } catch (err) {
-  //
-  // }
-  console.log(isPlayback)
   return isPlayback
 }
 omxp.on('finish', function() {
@@ -305,7 +296,7 @@ omxp.on('finish', function() {
 // })
 
 setInterval(function(){ updateDeviceMutation(); }, 20 * 60000);// cada 10 minutos
-setInterval(function(){ shell.exec("pm2 restart iptv-client") }, 6 * 60 * 60000)// cada 6 hrs
+setInterval(function(){ shell.exec("pm2 restart iptv-client") }, 8 * 60 * 60000)// cada 6 hrs
 // setInterval(function(){ verifyStatus() }, 5000);
 setInterval(function(){
   verifyStatus()
