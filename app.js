@@ -137,12 +137,12 @@ function screenShoot(){
 }
 
 function verifyStatus(){
-
-  omxp.getStatus((err,status) => {
-    let playback = status === "Playing" ? "active" : "inactive";
-    statusMutation(playback)
-  })
-
+  if(isPlayback()){
+    statusMutation("active")
+  }
+  else {
+    statusMutation("inactive")
+  }
 }
 
 
@@ -154,11 +154,10 @@ function playback(params){
     createLogMutation("error", params.error)
   }
   else{
+    omxp.open(params.url,opts)
+    createLogMutation("info", `url a reproducir: ${params.url}`)
     omxp.getStatus((err,status) => {
-      if(status != "Playing"){
-        omxp.open(params.url,opts)
-        createLogMutation("info", `url a reproducir: ${params.url}`)
-      }
+      if(err) createLogMutation("error", err)
     })
   }
 }
@@ -275,6 +274,19 @@ function getPlayerDevice(){
   }
 }
 
+function isPlayback(){
+  let isPlayback = false
+  try {
+    omxp.getStatus((err,status) => {
+      if(status === "Playing") isPlayback = true
+
+    })
+  } catch (err) {
+    let process = shell.exec('ps -A | grep -c omxplayer').stdout.replace(/\n/g, '')
+    if(process > 0) playback = true
+  }
+  return isPlayback
+}
 omxp.on('finish', function() {
   console.log("se finalizo la transmision ")
   // sendNotificationMutation('info', 'Se detuvo la reproduccion.')
@@ -282,26 +294,23 @@ omxp.on('finish', function() {
   verifyStatus()
   playbackPlayerMutation()
 });
-omxp.on("changeStatus", function(info){
-  let status = info.status != "Playing" ? "inactive" : "active"
-  console.log(status)
-  statusMutation(status)
-  if(info.status != "Playing"){
+// omxp.on("changeStatus", function(info){
+//   let status = info.status != "Playing" ? "inactive" : "active"
+//   console.log(status)
+//   statusMutation(status)
+//   if(info.status != "Playing"){
+//     console.log("iniciando player")
+//     playbackPlayerMutation()
+//   }
+// })
+
+setInterval(function(){ updateDeviceMutation(); }, 20 * 60000);// cada 10 minutos
+setInterval(function(){ shell.exec("pm2 restart iptv-client") }, 6 * 60 * 60000)// cada 6 hrs
+// setInterval(function(){ verifyStatus() }, 5000);
+setInterval(function(){
+  verifyStatus()
+  if(!isPlayback()){
     console.log("iniciando player")
     playbackPlayerMutation()
   }
-})
-
-setInterval(function(){ updateDeviceMutation(); }, 600000);
-// setInterval(function(){ verifyStatus() }, 5000);
-// setInterval(function(){
-//   omxp.getStatus((err,status) => {
-//     console.log(status)
-//     verifyStatus()
-//     if(status != "Playing"){
-//       console.log("iniciando player")
-//       playbackPlayerMutation()
-//     }
-//   })
-//
-//  }, 5000);
+ }, 5000);
