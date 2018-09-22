@@ -30,6 +30,7 @@ const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT
 const PLATFORM = process.env.PLATFORM
 const PUBLIC_IP_SERVICE = process.env.PUBLIC_IP_SERVICE
 const SECONDARY_PUBLIC_IP_SERVICE = process.env.SECONDARY_PUBLIC_IP_SERVICE
+const SCRIPT_VERSION = process.env.SCRIPT_VERSION
 
 let link = createAbsintheSocketLink(AbsintheSocket.create(
   new PhoenixSocket(GRAPHQL_ENDPOINT, {params: {tenant: TENANT }})
@@ -245,6 +246,7 @@ function getPlayerDevice(){
     ip_details = JSON.parse(shell.exec(`curl -s ${PUBLIC_IP_SERVICE}`, {silent:true}).stdout)
     return {
       macAddress: MAC_ADDRESS,
+      scriptVersion: SCRIPT_VERSION,
       ip: ip_details.query,
       location: `${ip_details.countryCode}-${ip_details.city}-${ip_details.regionName}-${ip_details.timezone}`
     }
