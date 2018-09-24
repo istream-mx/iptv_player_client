@@ -30,6 +30,7 @@ const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT
 const PLATFORM = process.env.PLATFORM
 const PUBLIC_IP_SERVICE = process.env.PUBLIC_IP_SERVICE
 const SECONDARY_PUBLIC_IP_SERVICE = process.env.SECONDARY_PUBLIC_IP_SERVICE
+const SCRIPT_VERSION = process.env.SCRIPT_VERSION
 
 let link = createAbsintheSocketLink(AbsintheSocket.create(
   new PhoenixSocket(GRAPHQL_ENDPOINT, {params: {tenant: TENANT }})
@@ -111,6 +112,7 @@ function restart(){
 }
 
 function update(){
+  shell.exec("rm -rf /home/pi/Documents/production/source/.git/index.lock")
   shell.exec("pm2 deploy ecosystem.config.js production --force",function(code, stdout, stderr) {
     if(code != 0){
       sendNotificationMutation("error", `Error al actualizar ${stderr}`)
@@ -136,24 +138,14 @@ function screenShoot(){
 }
 
 function verifyStatus(){
-
-  omxp.getStatus((err,status) => {
-    let playback = status === "Playing" ? "active" : "inactive";
-    apolloClient.mutate({mutation: gql `mutation($input: InputDeviceStatus!){
-      status(input: $input){
-        status
-        playerDevice{
-          macAddress
-          ip
-          location
-          liveStreamId
-        }
-      }
-    }`, variables: { input: {playerDevice: {macAddress: MAC_ADDRESS}, status: playback}     }})
-
-  })
-
+  if(isPlayback()){
+    statusMutation("active")
+  }
+  else {
+    statusMutation("inactive")
+  }
 }
+
 
 function playback(params){
   console.log("playback funtion")
@@ -163,15 +155,11 @@ function playback(params){
     createLogMutation("error", params.error)
   }
   else{
-    omxp.getStatus((err,status) => {
-      if(status != "Playing"){
-        omxp.open(params.url,opts)
-      }
-    })
+    omxp.open(params.url,opts)
+    createLogMutation("info", `url a reproducir: ${params.url}`)
+
   }
 }
-
-
 
 function sendNotificationMutation(type,message){
   apolloClient.mutate({mutation: gql `mutation($input: InputDeviceNotification){
@@ -214,6 +202,7 @@ function takeScreenshotMutation(imageUrl){
   }`, variables: {macAddress: MAC_ADDRESS ,imageUrl: imageUrl}})
 }
 
+
 function updateDeviceMutation(){
   apolloClient.mutate({mutation: gql `mutation($input: InputPlayerDevice!){
     updateDevice(input: $input){
@@ -237,12 +226,27 @@ function playbackPlayerMutation(){
   })
 }
 
+function statusMutation(status){
+  apolloClient.mutate({mutation: gql `mutation($input: InputDeviceStatus!){
+    status(input: $input){
+      status
+      playerDevice{
+        macAddress
+        ip
+        location
+        liveStreamId
+      }
+    }
+  }`, variables: { input: {playerDevice: {macAddress: MAC_ADDRESS}, status: status}     }})
+}
+
 function getPlayerDevice(){
   let ip_details ={}
   try {
     ip_details = JSON.parse(shell.exec(`curl -s ${PUBLIC_IP_SERVICE}`, {silent:true}).stdout)
     return {
       macAddress: MAC_ADDRESS,
+      scriptVersion: SCRIPT_VERSION,
       ip: ip_details.query,
       location: `${ip_details.countryCode}-${ip_details.city}-${ip_details.regionName}-${ip_details.timezone}`
     }
@@ -270,23 +274,36 @@ function getPlayerDevice(){
   }
 }
 
+function isPlayback(){
+  let isPlayback = false
+  let process = shell.exec('ps -A | grep -c omxplayer',{silent:true}).stdout.replace(/\n/g, '')
+  if(process > 0) isPlayback = true
+  return isPlayback
+}
 omxp.on('finish', function() {
   console.log("se finalizo la transmision ")
   // sendNotificationMutation('info', 'Se detuvo la reproduccion.')
-  createLog("info", 'se detuvo la reproduccion')
+  createLogMutation("info", 'se detuvo la reproduccion')
   verifyStatus()
   playbackPlayerMutation()
 });
+// omxp.on("changeStatus", function(info){
+//   let status = info.status != "Playing" ? "inactive" : "active"
+//   console.log(status)
+//   statusMutation(status)
+//   if(info.status != "Playing"){
+//     console.log("iniciando player")
+//     playbackPlayerMutation()
+//   }
+// })
 
-setInterval(function(){ updateDeviceMutation(); }, 600000);
-setInterval(function(){ verifyStatus() }, 5000);
+setInterval(function(){ updateDeviceMutation(); }, 20 * 60000);// cada 10 minutos
+setInterval(function(){ shell.exec("pm2 restart iptv-client") }, 8 * 60 * 60000)// cada 6 hrs
+// setInterval(function(){ verifyStatus() }, 5000);
 setInterval(function(){
-  omxp.getStatus((err,status) => {
-    console.log(status)
-    if(status != "Playing"){
-      console.log("iniciando player")
-      playbackPlayerMutation()
-    }
-  })
-
+  verifyStatus()
+  if(!isPlayback()){
+    console.log("iniciando player")
+    playbackPlayerMutation()
+  }
  }, 5000);

@@ -2,22 +2,24 @@ module.exports = {
   apps : [{
     name      : 'iptv-client',
     script    : 'client.js',
-    error_file: 'err.log',
-    out_file: 'out.log',
     log_type: 'json',
     env: {
       NODE_ENV: 'development',
       TENANT: "dGVzdA==",
       PLATFORM: "raspberry",
       PUBLIC_IP_SERVICE: "http://ip-api.com/json",
-      GRAPHQL_ENDPOINT: 'ws://192.168.50.114:4000/api/socket'
+      SECONDARY_PUBLIC_IP_SERVICE: "http://ipinfo.io/json",
+      GRAPHQL_ENDPOINT: 'ws://192.168.50.114:4000/api/socket',
+      SCRIPT_VERSION: "1.0-test"
     },
     env_production : {
       NODE_ENV: 'production',
       TENANT: "Y2FuYWw2",
       PLATFORM: "raspberry",
       PUBLIC_IP_SERVICE: "http://ip-api.com/json",
-      GRAPHQL_ENDPOINT: 'ws://canal6.iptv.tvstream.mx/api/socket'
+      SECONDARY_PUBLIC_IP_SERVICE: "http://ipinfo.io/json",
+      GRAPHQL_ENDPOINT: 'ws://canal6.iptv.tvstream.mx/api/socket',
+      SCRIPT_VERSION: "1.0"
     }
   }],
 
