@@ -167,8 +167,8 @@ function playback(params){
 function runSpeedTest(){
   let child_speed = shell.exec("speedtest-cli --json", {async: true});
   child_speed.stdout.on('data', function(data){
-    console.log(data)
-    speedTestMutation(data)
+    console.log(JSON.parse(data))
+    speedTestMutation(JSON.parse(data))
   })
   // let test = speedTest({maxTime: 5000})
   //
