@@ -165,7 +165,7 @@ function playback(params){
   }
 }
 function runSpeedTest(){
-  let child_speed = shelljs.exec("speedtest-cli --json", {async: true});
+  let child_speed = shell.exec("speedtest-cli --json", {async: true});
   child_speed.stdout.on('data', function(data){
     console.log(data)
     speedTestMutation(data)
