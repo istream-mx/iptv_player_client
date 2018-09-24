@@ -169,6 +169,7 @@ function runSpeedTest(){
 
   test.on('data', data => {
     console.log(data)
+    speedTestMutation(data.speeds)
   })
   test.on('error', err => {
     console.error(err);
@@ -263,7 +264,7 @@ function speedTestMutation(result){
     		download
     		upload
       }
-    }`, variables: { macAddress: MAC_ADDRESS, upload: 10.5, download: 2.4 }
+    }`, variables: { macAddress: MAC_ADDRESS, upload: result.download, download: result.upload }
   })
 }
 
