@@ -165,15 +165,20 @@ function playback(params){
   }
 }
 function runSpeedTest(){
-  let test = speedTest({maxTime: 5000})
-
-  test.on('data', data => {
+  let child_speed = shelljs.exec("speedtest-cli --json", {async: true});
+  child_speed.stout.on('data', function(data){
     console.log(data)
-    speedTestMutation(data.speeds)
+    speedTestMutation(data)
   })
-  test.on('error', err => {
-    console.error(err);
-  })
+  // let test = speedTest({maxTime: 5000})
+  //
+  // test.on('data', data => {
+  //   console.log(data)
+  //   speedTestMutation(data.speeds)
+  // })
+  // test.on('error', err => {
+  //   console.error(err);
+  // })
 }
 
 function sendNotificationMutation(type,message){
@@ -264,7 +269,7 @@ function speedTestMutation(result){
     		download
     		upload
       }
-    }`, variables: { macAddress: MAC_ADDRESS, upload: result.download, download: result.upload }
+    }`, variables: { macAddress: MAC_ADDRESS, upload: result.upload, download: result.download }
   })
 }
 
