@@ -8,6 +8,7 @@ import * as AbsintheSocket from "@absinthe/socket";
 import {createAbsintheSocketLink} from "@absinthe/socket-apollo-link";
 import {Socket as PhoenixSocket} from "phoenix-channels";
 import omxp from 'omxplayer-controll';
+import speedTest from 'speedtest-net';
 
 
 
@@ -91,6 +92,9 @@ function execute_cmd(action){
     case "takeScreenshot":
       screenShoot()
       break;
+    case "speedTest":
+      runSpeedTest()
+      break;
 
     default:
       shell.echo("action not implemented")
@@ -159,6 +163,15 @@ function playback(params){
     createLogMutation("info", `url a reproducir: ${params.url}`)
 
   }
+}
+function runSpeedTest(){
+  console.log("runSpeedTest")
+  let child_speed = shell.exec("speedtest-cli --json", function(code, stdout, stderr){
+    if(code != 0) createLogMutation("error", stderr)
+    else {
+      speedTestMutation(JSON.parse(stdout))
+    }
+  });
 }
 
 function sendNotificationMutation(type,message){
@@ -240,6 +253,19 @@ function statusMutation(status){
   }`, variables: { input: {playerDevice: {macAddress: MAC_ADDRESS}, status: status}     }})
 }
 
+function speedTestMutation(result){
+  apolloClient.mutate({mutation: gql `mutation($macAddress: String!,$download: Float, $upload: Float){
+      speedTest(macAddress: $macAddress, download: $download, upload: $upload){
+        playerDevice{
+    			name
+    		}
+    		download
+    		upload
+      }
+    }`, variables: { macAddress: MAC_ADDRESS, upload: bitsToMegabits(result.upload), download: bitsToMegabits(result.download) }
+  })
+}
+
 function getPlayerDevice(){
   let ip_details ={}
   try {
@@ -279,6 +305,11 @@ function isPlayback(){
   let process = shell.exec('ps -A | grep -c omxplayer',{silent:true}).stdout.replace(/\n/g, '')
   if(process > 0) isPlayback = true
   return isPlayback
+}
+
+function bitsToMegabits(value){
+  let mbps = value/(1048576)
+  return Number(mbps.toFixed(2))
 }
 omxp.on('finish', function() {
   console.log("se finalizo la transmision ")
