@@ -8,6 +8,7 @@ import * as AbsintheSocket from "@absinthe/socket";
 import {createAbsintheSocketLink} from "@absinthe/socket-apollo-link";
 import {Socket as PhoenixSocket} from "phoenix-channels";
 import omxp from 'omxplayer-controll';
+import speedTest from 'speedtest-net';
 
 
 
@@ -91,6 +92,9 @@ function execute_cmd(action){
     case "takeScreenshot":
       screenShoot()
       break;
+    case "speedTest":
+      runSpeedTest()
+      break;
 
     default:
       shell.echo("action not implemented")
@@ -159,6 +163,16 @@ function playback(params){
     createLogMutation("info", `url a reproducir: ${params.url}`)
 
   }
+}
+function runSpeedTest(){
+  let test = speedTest({maxTime: 5000})
+
+  test.on('data', data => {
+    console.log(data)
+  })
+  test.on('error', err => {
+    console.error(err);
+  })
 }
 
 function sendNotificationMutation(type,message){
@@ -238,6 +252,19 @@ function statusMutation(status){
       }
     }
   }`, variables: { input: {playerDevice: {macAddress: MAC_ADDRESS}, status: status}     }})
+}
+
+function speedTestMutation(result){
+  apolloClient.mutate({mutation: gql `mutation($macAddress: String!,$download: Float, $upload: Float){
+      speedTest(macAddress: $macAddress, download: $download, upload: $upload){
+        playerDevice{
+    			name
+    		}
+    		download
+    		upload
+      }
+    }`, variables: { macAddress: MAC_ADDRESS, upload: 10.5, download: 2.4 }
+  })
 }
 
 function getPlayerDevice(){
