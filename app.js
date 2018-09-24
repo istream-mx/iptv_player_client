@@ -170,15 +170,6 @@ function runSpeedTest(){
     console.log(JSON.parse(data))
     speedTestMutation(JSON.parse(data))
   })
-  // let test = speedTest({maxTime: 5000})
-  //
-  // test.on('data', data => {
-  //   console.log(data)
-  //   speedTestMutation(data.speeds)
-  // })
-  // test.on('error', err => {
-  //   console.error(err);
-  // })
 }
 
 function sendNotificationMutation(type,message){
@@ -269,7 +260,7 @@ function speedTestMutation(result){
     		download
     		upload
       }
-    }`, variables: { macAddress: MAC_ADDRESS, upload: result.upload, download: result.download }
+    }`, variables: { macAddress: MAC_ADDRESS, upload: bitsToMegabits(result.upload), download: bitsToMegabits(result.download) }
   })
 }
 
@@ -312,6 +303,11 @@ function isPlayback(){
   let process = shell.exec('ps -A | grep -c omxplayer',{silent:true}).stdout.replace(/\n/g, '')
   if(process > 0) isPlayback = true
   return isPlayback
+}
+
+function bitsToMegabits(value){
+  let mbps = value/(1048576)
+  return mbps.toFixed(2)
 }
 omxp.on('finish', function() {
   console.log("se finalizo la transmision ")
