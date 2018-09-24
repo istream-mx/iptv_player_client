@@ -307,7 +307,7 @@ function isPlayback(){
 
 function bitsToMegabits(value){
   let mbps = value/(1048576)
-  return mbps.toFixed(2)
+  return Number(mbps.toFixed(2))
 }
 omxp.on('finish', function() {
   console.log("se finalizo la transmision ")
