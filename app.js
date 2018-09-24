@@ -165,11 +165,13 @@ function playback(params){
   }
 }
 function runSpeedTest(){
-  let child_speed = shell.exec("speedtest-cli --json", {async: true});
-  child_speed.stdout.on('data', function(data){
-    console.log(JSON.parse(data))
-    speedTestMutation(JSON.parse(data))
-  })
+  console.log("runSpeedTest")
+  let child_speed = shell.exec("speedtest-cli --json", function(code, stdout, stderr){
+    if(code != 0) createLogMutation("error", stderr)
+    else {
+      speedTestMutation(JSON.parse(stdout))
+    }
+  });
 }
 
 function sendNotificationMutation(type,message){
