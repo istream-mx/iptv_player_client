@@ -142,17 +142,14 @@ function screenShoot(){
 }
 
 function verifyStatus(){
-  if(isPlayback()){
-    statusMutation("active")
-  }
-  else {
-    statusMutation("inactive")
-  }
+  isPlayback(function(isActive){
+    if(isActive) statusMutation("active")
+    else statusMutation("inactive")
+  })
 }
 
 
 function playback(params){
-  console.log("playback funtion")
   if(params.error){
     shell.echo(params.error)
     sendNotificationMutation("error", params.error)
@@ -300,11 +297,20 @@ function getPlayerDevice(){
   }
 }
 
-function isPlayback(){
-  let isPlayback = false
-  let process = shell.exec('ps -A | grep -c omxplayer',{silent:true}).stdout.replace(/\n/g, '')
-  if(process > 0) isPlayback = true
-  return isPlayback
+function isPlayback(callback){
+  let isPlayback  = false
+  try {
+    omxp.getStatus(function(err, status){
+      if(err) console.log(err)
+      else if(status === "Playing") isPlayback = true
+      callback(isPlayback)
+    })
+  } catch (err) {
+    console.log(err)
+    let process = shell.exec('ps -A | grep -c omxplayer',{silent:true}).stdout.replace(/\n/g, '')
+    if(process > 0) callback(true)
+    else callback(false)
+  }
 }
 
 function bitsToMegabits(value){
@@ -331,10 +337,13 @@ omxp.on('finish', function() {
 setInterval(function(){ updateDeviceMutation(); }, 20 * 60000);// cada 10 minutos
 setInterval(function(){ shell.exec("pm2 restart iptv-client") }, 8 * 60 * 60000)// cada 6 hrs
 // setInterval(function(){ verifyStatus() }, 5000);
+
 setInterval(function(){
   verifyStatus()
-  if(!isPlayback()){
-    console.log("iniciando player")
-    playbackPlayerMutation()
-  }
+  isPlayback(function(isActive){
+    if(!isActive){
+      console.log("iniciando player")
+      playbackPlayerMutation()
+    }
+  })
  }, 5000);
