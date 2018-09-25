@@ -19,7 +19,7 @@ module.exports = {
       PUBLIC_IP_SERVICE: "http://ip-api.com/json",
       SECONDARY_PUBLIC_IP_SERVICE: "http://ipinfo.io/json",
       GRAPHQL_ENDPOINT: 'ws://canal6.iptv.tvstream.mx/api/socket',
-      SCRIPT_VERSION: "1.0"
+      SCRIPT_VERSION: "1.0.1"
     }
   }],
 
