@@ -301,17 +301,19 @@ function getPlayerDevice(){
 }
 
 function isPlayback(){
+  let isPlayback  = false
   try {
     omxp.getStatus(function(err, status){
       console.log(status )
       if(err) console.log(err)
-      return status === "Playing"
+      if(status === "Playing") isPlayback = true
     })
   } catch (err) {
     let process = shell.exec('ps -A | grep -c omxplayer',{silent:true}).stdout.replace(/\n/g, '')
     if(process > 0) return true
     else return false
   }
+  return isPlayback
 }
 
 function bitsToMegabits(value){
