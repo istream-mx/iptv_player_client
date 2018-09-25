@@ -312,6 +312,7 @@ function isPlayback(){
     let process = shell.exec('ps -A | grep -c omxplayer',{silent:true}).stdout.replace(/\n/g, '')
     if(process > 0) isPlayback = true
   }
+  console.log("status: " ,isPlayback)
   return isPlayback
 }
 
