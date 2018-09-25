@@ -306,6 +306,7 @@ function isPlayback(callback){
       callback(isPlayback)
     })
   } catch (err) {
+    console.log(err)
     let process = shell.exec('ps -A | grep -c omxplayer',{silent:true}).stdout.replace(/\n/g, '')
     if(process > 0) callback(true)
     else callback(false)
