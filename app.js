@@ -142,13 +142,11 @@ function screenShoot(){
 }
 
 function verifyStatus(){
-  console.log(isPlayback())
-  if(isPlayback()){
-    statusMutation("active")
-  }
-  else {
-    statusMutation("inactive")
-  }
+  isPlayback(function(isActive){
+    console.log(isActive)
+    if(isActive) statusMutation("active")
+    else statusMutation("inactive")
+  })
 }
 
 
@@ -300,20 +298,20 @@ function getPlayerDevice(){
   }
 }
 
-function isPlayback(){
+function isPlayback(callback){
   let isPlayback  = false
   try {
     omxp.getStatus(function(err, status){
       console.log(status )
       if(err) console.log(err)
       if(status === "Playing") isPlayback = true
+      callback(isPlayback)
     })
   } catch (err) {
     let process = shell.exec('ps -A | grep -c omxplayer',{silent:true}).stdout.replace(/\n/g, '')
-    if(process > 0) return true
-    else return false
+    if(process > 0) callback(true)
+    else callback(false)
   }
-  return isPlayback
 }
 
 function bitsToMegabits(value){
@@ -343,8 +341,10 @@ setInterval(function(){ shell.exec("pm2 restart iptv-client") }, 8 * 60 * 60000)
 
 setInterval(function(){
   verifyStatus()
-  if(!isPlayback()){
-    console.log("iniciando player")
-    playbackPlayerMutation()
-  }
+  isPlayback(function(isActive){
+    if(!isActive){
+      console.log("iniciando player")
+      playbackPlayerMutation()
+    }
+  })
  }, 5000);
