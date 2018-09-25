@@ -142,6 +142,7 @@ function screenShoot(){
 }
 
 function verifyStatus(){
+  console.log(isPlayback())
   if(isPlayback()){
     statusMutation("active")
   }
@@ -152,7 +153,6 @@ function verifyStatus(){
 
 
 function playback(params){
-  console.log("playback funtion")
   if(params.error){
     shell.echo(params.error)
     sendNotificationMutation("error", params.error)
@@ -303,14 +303,12 @@ function getPlayerDevice(){
 function isPlayback(){
   try {
     omxp.getStatus(function(err, status){
-      console.log(status)
+      console.log(status )
       if(err) console.log(err)
-      console.log(status === "Playing")
       return status === "Playing"
     })
   } catch (err) {
     let process = shell.exec('ps -A | grep -c omxplayer',{silent:true}).stdout.replace(/\n/g, '')
-    console.log("status: " ,isPlayback)
     if(process > 0) return true
     else return false
   }
