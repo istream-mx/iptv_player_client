@@ -143,7 +143,6 @@ function screenShoot(){
 
 function verifyStatus(){
   isPlayback(function(isActive){
-    console.log(isActive)
     if(isActive) statusMutation("active")
     else statusMutation("inactive")
   })
@@ -302,9 +301,8 @@ function isPlayback(callback){
   let isPlayback  = false
   try {
     omxp.getStatus(function(err, status){
-      console.log(status )
       if(err) console.log(err)
-      if(status === "Playing") isPlayback = true
+      else if(status === "Playing") isPlayback = true
       callback(isPlayback)
     })
   } catch (err) {
