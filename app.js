@@ -305,7 +305,8 @@ function isPlayback(){
     omxp.getStatus(function(err, status){
       console.log(status)
       if(err) console.log(err)
-      return status === "Playing" ? true : false;
+      console.log(status === "Playing")
+      return status === "Playing"
     })
   } catch (err) {
     let process = shell.exec('ps -A | grep -c omxplayer',{silent:true}).stdout.replace(/\n/g, '')
