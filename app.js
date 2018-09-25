@@ -304,6 +304,7 @@ function isPlayback(){
   let isPlayback = false
   try {
     omxp.getStatus(function(err, status){
+      console.log(status)
       if(err) console.log(err)
       isPlayback = status === "Playing" ? true : false;
     })
