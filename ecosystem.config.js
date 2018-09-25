@@ -5,7 +5,7 @@ module.exports = {
     log_type: 'json',
     env: {
       NODE_ENV: 'development',
-      TENANT: "dGVzdA==",
+      TENANT: "Y2FuYWw2",
       PLATFORM: "raspberry",
       PUBLIC_IP_SERVICE: "http://ip-api.com/json",
       SECONDARY_PUBLIC_IP_SERVICE: "http://ipinfo.io/json",
