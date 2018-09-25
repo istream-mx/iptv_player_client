@@ -162,7 +162,10 @@ function playback(params){
   }
 }
 function runSpeedTest(){
-  console.log("runSpeedTest")
+  console.log("speedtest-cli")
+  if (!shell.which('speedtest-cli')){
+    shell.exec("sudo apt install speedtest-cli")
+  }
   let child_speed = shell.exec("speedtest-cli --json", function(code, stdout, stderr){
     if(code != 0) createLogMutation("error", stderr)
     else {
