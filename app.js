@@ -136,7 +136,7 @@ function screenShoot(){
     shell.exec("curl -sL https://raw.githubusercontent.com/AndrewFromMelbourne/raspi2png/master/installer.sh | bash -")
   }
   shell.exec("raspi2png -p screenshot.png", function(code,stout,stderr){
-    let imageUrl = shell.exec(`curl --upload-file ./screenshot.png https://transfer.sh/screenshot.sh` , {silent:true}).stdout
+    let imageUrl = shell.exec(`curl --upload-file ./screenshot.png https://transfer.sh/screenshot.png` , {silent:true}).stdout
     takeScreenshotMutation(imageUrl)
   })
 }
