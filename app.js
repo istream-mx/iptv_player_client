@@ -59,6 +59,10 @@ function execute_cmd(action){
       update()
       break;
 
+    case "updateApp2":
+        //eliminar cuando se actualicen
+        break;
+
     case "takeScreenshot":
       screenShoot()
       break;
@@ -67,7 +71,7 @@ function execute_cmd(action){
       break;
 
     default:
-      sendNotificationMutation("error", "Accion no implementada")
+      api_client.sendNotificationMutation("error", "Accion no implementada")
   }
 }
 
