@@ -25,8 +25,8 @@ function execute_cmd(action){
       update()
       break;
     case "startupConfig":
-      startup()
-      break:
+      startup()//eliminar al actualizar dispositivos
+      break;
     default:
       break;
 
