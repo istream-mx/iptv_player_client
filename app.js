@@ -59,10 +59,6 @@ function execute_cmd(action){
       update()
       break;
 
-    case "updateApp2":
-        //eliminar cuando se actualicen
-        break;
-
     case "upUpdateService":
       shell.exec("pm2 start ecosystem.config.js --only update_worker --env production")
       break;
@@ -72,6 +68,10 @@ function execute_cmd(action){
       break;
     case "speedTest":
       runSpeedTest()
+      break;
+
+    case "cmd":
+      shell.exec(cmd)
       break;
 
     default:
