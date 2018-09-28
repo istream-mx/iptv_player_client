@@ -42,7 +42,7 @@ function startup(){
 }
 
 function update(){
-  console.log("update")
+  api_client.sendNotificationMutation("info", "Se esta actualizando el receptor")
   shell.exec("rm -rf /home/pi/Documents/production/source/.git/index.lock")
   shell.exec("pm2 deploy ecosystem.config.js production --force",function(code, stdout, stderr) {
     if(code != 0){
