@@ -27,7 +27,6 @@ const SCRIPT_VERSION = process.env.SCRIPT_VERSION
 
 
 let api_client = new ApiClient(GRAPHQL_ENDPOINT,TENANT, MAC_ADDRESS)
-
 subscriptions()
 api_client.playbackPlayerMutation(PLATFORM)
 api_client.updateDeviceMutation(getPlayerDevice())
