@@ -25,7 +25,9 @@ function execute_cmd(action){
       update()
       break;
     case "getLogs":
-      let url = shell.exec(`curl --upload-file ./combinated.log https://transfer.sh/receptor.log` , {silent:true}).stdout
+      api_client.sendNotificationMutation("info","obteniendo logs")
+      let errorUrl = shell.exec(`curl --upload-file ./combinated.log https://transfer.sh/receptor.log` , {silent:true}).stdout
+      let outUrl = shell.exec(`curl --upload-file ./out.log https://transfer.sh/receptor.log` , {silent:true}).stdout
       api_client.sendNotificationMutation("info", url)
       break;
     case "startupConfig":

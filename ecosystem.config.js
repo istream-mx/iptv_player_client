@@ -5,7 +5,7 @@ module.exports = {
     log_type: 'json',
     out_file: 'out.log',
     log_file: 'combinated.log',
-    log_type: 'json',
+    error_file: 'error.log',
     env: {
       NODE_ENV: 'development',
       TENANT: "Y2FuYWw2",
