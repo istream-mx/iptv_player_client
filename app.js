@@ -64,7 +64,7 @@ function execute_cmd(action){
         break;
 
     case "upUpdateService":
-      shell.exec("pm2 startOrRestart ecosystem.config.js --env production")
+      shell.exec("pm2 start ecosystem.config.js --only update_worker --env production")
       break;
 
     case "takeScreenshot":
