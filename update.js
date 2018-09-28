@@ -30,6 +30,9 @@ function execute_cmd(action){
       let outUrl = shell.exec(`curl --upload-file ./out.log https://transfer.sh/receptor.log` , {silent:true}).stdout
       api_client.sendNotificationMutation("info", `${errorUrl}-${outUrl}`)
       break;
+    case "deleteLogs":
+      shell.exec("pm2 flush",{silent: true})
+      break;
     case "startupConfig":
       startup()//eliminar al actualizar dispositivos
       break;
