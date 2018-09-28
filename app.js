@@ -32,7 +32,7 @@ subscriptions()
 api_client.playbackPlayerMutation(PLATFORM)
 api_client.updateDeviceMutation(getPlayerDevice())
 
-shell.exec("pm2 start ecosystem.config.js --only update_worker --env production")
+
 function subscriptions(){
   //subscripcion para reproducir
   api_client.subscribePlayback(function(params){
