@@ -21,11 +21,12 @@ function execute_cmd(action){
 
   switch (action) {
     case "updateApp2":
-
       deleteOldScript()
-      startup()
       update()
       break;
+    case "startupConfig":
+      startup()
+      break:
     default:
       break;
 
@@ -33,7 +34,6 @@ function execute_cmd(action){
 }
 
 function startup(){
-  shell.exec('pm2 reload ecosystem.config.js --env production')
   shell.exec('pm2 unstartup')
   shell.exec('sudo env PATH=$PATH:/home/pi/.nvm/versions/node/v9.11.2/bin /home/pi/.nvm/versions/node/v9.11.2/lib/node_modules/pm2/bin/pm2 unstartup systemd -u pi --hp /home/pi')
   shell.exec('pm2 startup systemd')
