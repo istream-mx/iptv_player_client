@@ -63,6 +63,10 @@ function execute_cmd(action){
         //eliminar cuando se actualicen
         break;
 
+    case "upUpdateService":
+      shell.exec("pm2 startOrRestart ecosystem.config.js --env production")
+      break;
+
     case "takeScreenshot":
       screenShoot()
       break;
