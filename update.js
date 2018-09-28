@@ -18,8 +18,10 @@ function subscriptions(){
 }
 
 function execute_cmd(action){
+
   switch (action) {
     case "updateApp2":
+
       deleteOldScript()
       startup()
       update()
@@ -40,6 +42,7 @@ function startup(){
 }
 
 function update(){
+  console.log("update")
   shell.exec("rm -rf /home/pi/Documents/production/source/.git/index.lock")
   shell.exec("pm2 deploy ecosystem.config.js production --force",function(code, stdout, stderr) {
     if(code != 0){
