@@ -20,7 +20,7 @@ function subscriptions(){
 function execute_cmd(action){
 
   switch (action) {
-    case "updateApp2":
+    case "update":
       deleteOldScript()
       update()
       break;

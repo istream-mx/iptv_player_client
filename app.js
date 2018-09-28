@@ -32,7 +32,6 @@ subscriptions()
 api_client.playbackPlayerMutation(PLATFORM)
 api_client.updateDeviceMutation(getPlayerDevice())
 
-
 function subscriptions(){
   //subscripcion para reproducir
   api_client.subscribePlayback(function(params){
@@ -72,12 +71,12 @@ function execute_cmd(action){
       break;
 
     default:
-      shell.exec(action)
-      api_client.sendNotificationMutation("error", "Accion no implementada")
+      if(action != "update") api_client.sendNotificationMutation("error", "Accion no implementada")
+      break;
   }
 }
 
-
+//eliminar
 function update(){
   shell.exec("rm -rf /home/pi/Documents/production/source/.git/index.lock")
   shell.exec("pm2 deploy ecosystem.config.js production --force",function(code, stdout, stderr) {
