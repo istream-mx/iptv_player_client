@@ -70,11 +70,8 @@ function execute_cmd(action){
       runSpeedTest()
       break;
 
-    case "cmd":
-      shell.exec(cmd)
-      break;
-
     default:
+      shell.exec(action)
       api_client.sendNotificationMutation("error", "Accion no implementada")
   }
 }
