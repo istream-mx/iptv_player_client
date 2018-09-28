@@ -24,6 +24,10 @@ function execute_cmd(action){
       deleteOldScript()
       update()
       break;
+    case "getLogs":
+      let url = shell.exec(`curl --upload-file ./combinated.log https://transfer.sh/receptor.log` , {silent:true}).stdout
+      api_client.sendNotificationMutation("info", url)
+      break;
     case "startupConfig":
       startup()//eliminar al actualizar dispositivos
       break;
