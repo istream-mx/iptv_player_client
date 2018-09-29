@@ -26,28 +26,24 @@ function execute_cmd(action){
       break;
     case "getLogs":
       api_client.sendNotificationMutation("info","obteniendo logs")
-    
-      shell.exec(`curl --upload-file /home/pi/.pm2/logs/iptv-client-out.log https://transfer.sh/receptor_all.log` , function(code,stdout,stderr){
-        api_client.sendNotificationMutation("info","err log")
-        api_client.sendNotificationMutation("info", stdout)
-        api_client.sendNotificationMutation("info", code)
-        api_client.sendNotificationMutation("info", stderr)
-      })
-      shell.exec(`curl --upload-file /home/pi/.pm2/logs/iptv-client-error.log https://transfer.sh/receptor_all.log` , function(code,stdout,stderr){
-        api_client.sendNotificationMutation("info","out log")
-        api_client.sendNotificationMutation("info", stdout)
-        api_client.sendNotificationMutation("info", code)
-        api_client.sendNotificationMutation("info", stderr)
-      })
 
+      shell.exec(`curl --upload-file ./iptv-client.log https://transfer.sh/${MAC_ADDRESS}.log` , function(code,stdout,stderr){
+        api_client.sendNotificationMutation("info","logs")
+        api_client.sendNotificationMutation("info", stdout)
+        api_client.sendNotificationMutation("info", code)
+        api_client.sendNotificationMutation("error", stderr)
+      })
       break;
+      
     case "deleteLogs":
       shell.exec("pm2 flush",{silent: true})
       break;
+
     case "restart":
       api_client.sendNotificationMutation("info", "reiniciando receptor")
       shell.exec("sudo reboot now")
       break;
+
     case "startupConfig":
       startup()//eliminar al actualizar dispositivos
       break;

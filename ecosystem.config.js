@@ -4,7 +4,7 @@ module.exports = {
     script    : 'client.js',
     log_type: 'json',
     out_file: 'out.log',
-    log_file: 'combinated.log',
+    log_file: 'iptv-client.log',
     error_file: 'error.log',
     env: {
       NODE_ENV: 'development',
