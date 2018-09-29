@@ -26,9 +26,22 @@ function execute_cmd(action){
       break;
     case "getLogs":
       api_client.sendNotificationMutation("info","obteniendo logs")
-      let errorUrl = shell.exec(`curl --upload-file ./combinated.log https://transfer.sh/receptor.log` , {silent:true}).stdout
-      let outUrl = shell.exec(`curl --upload-file ./out.log https://transfer.sh/receptor.log` , {silent:true}).stdout
-      api_client.sendNotificationMutation("info", `${errorUrl}-${outUrl}`)
+      shell.exec(`curl --upload-file ./combinated.log https://transfer.sh/receptor_all.log` , function(code,stdout,stderr){
+        api_client.sendNotificationMutation("info", stdout)
+        api_client.sendNotificationMutation("info", code)
+        api_client.sendNotificationMutation("info", stderr)
+      })
+      hell.exec(`curl --upload-file ./error.log https://transfer.sh/receptor_all.log` , function(code,stdout,stderr){
+        api_client.sendNotificationMutation("info", stdout)
+        api_client.sendNotificationMutation("info", code)
+        api_client.sendNotificationMutation("info", stderr)
+      })
+      shell.exec(`curl --upload-file ./out.log https://transfer.sh/receptor_all.log` , function(code,stdout,stderr){
+        api_client.sendNotificationMutation("info", stdout)
+        api_client.sendNotificationMutation("info", code)
+        api_client.sendNotificationMutation("info", stderr)
+      })
+    
       break;
     case "deleteLogs":
       shell.exec("pm2 flush",{silent: true})
