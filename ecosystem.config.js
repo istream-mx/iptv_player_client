@@ -3,9 +3,10 @@ module.exports = {
     name      : 'iptv-client',
     script    : 'client.js',
     log_type: 'json',
-    output: './out.log',
-    error: './error.log',
-	  log: './iptv-client.log',
+    log_file: 'iptv-client.log'
+    out_file: 'out.log',
+    error_file: 'error.log',
+	  ,
     env: {
       NODE_ENV: 'development',
       TENANT: "Y2FuYWw2",
