@@ -6,7 +6,6 @@ module.exports = {
     log_file: 'iptv-client.log'
     out_file: 'out.log',
     error_file: 'error.log',
-	  ,
     env: {
       NODE_ENV: 'development',
       TENANT: "Y2FuYWw2",
