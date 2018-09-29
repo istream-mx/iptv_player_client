@@ -61,6 +61,7 @@ function startup(){
 function update(){
   api_client.sendNotificationMutation("info", "Se esta actualizando el receptor")
   shell.exec("pm2 delete iptv-client")
+  shell.exec("pm2 start ecosystem.config.js --only iptv-client --env production")
   shell.exec("rm -rf /home/pi/Documents/production/source/.git/index.lock")
   shell.exec("pm2 deploy ecosystem.config.js production --force",function(code, stdout, stderr) {
     if(code != 0){
