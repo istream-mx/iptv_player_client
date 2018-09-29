@@ -3,7 +3,7 @@ module.exports = {
     name      : 'iptv-client',
     script    : 'client.js',
     log_type: 'json',
-    log_file: 'iptv-client.log'
+    log_file: 'iptv-client.log',
     out_file: 'out.log',
     error_file: 'error.log',
     env: {
