@@ -27,16 +27,19 @@ function execute_cmd(action){
     case "getLogs":
       api_client.sendNotificationMutation("info","obteniendo logs")
       shell.exec(`curl --upload-file ./combinated.log https://transfer.sh/receptor_all.log` , function(code,stdout,stderr){
+        api_client.sendNotificationMutation("info","all logs")
         api_client.sendNotificationMutation("info", stdout)
         api_client.sendNotificationMutation("info", code)
         api_client.sendNotificationMutation("info", stderr)
       })
       hell.exec(`curl --upload-file ./error.log https://transfer.sh/receptor_all.log` , function(code,stdout,stderr){
+        api_client.sendNotificationMutation("info","err log")
         api_client.sendNotificationMutation("info", stdout)
         api_client.sendNotificationMutation("info", code)
         api_client.sendNotificationMutation("info", stderr)
       })
       shell.exec(`curl --upload-file ./out.log https://transfer.sh/receptor_all.log` , function(code,stdout,stderr){
+        api_client.sendNotificationMutation("info","out log")
         api_client.sendNotificationMutation("info", stdout)
         api_client.sendNotificationMutation("info", code)
         api_client.sendNotificationMutation("info", stderr)
