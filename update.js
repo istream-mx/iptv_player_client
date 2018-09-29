@@ -41,10 +41,14 @@ function execute_cmd(action){
         api_client.sendNotificationMutation("info", code)
         api_client.sendNotificationMutation("info", stderr)
       })
-    
+
       break;
     case "deleteLogs":
       shell.exec("pm2 flush",{silent: true})
+      break;
+    case "restart":
+      api_client.sendNotificationMutation("info", "reiniciando receptor")
+      shell.exec("sudo reboot now")
       break;
     case "startupConfig":
       startup()//eliminar al actualizar dispositivos
