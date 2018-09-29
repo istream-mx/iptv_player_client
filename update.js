@@ -34,7 +34,7 @@ function execute_cmd(action){
         api_client.sendNotificationMutation("error", stderr)
       })
       break;
-      
+
     case "deleteLogs":
       shell.exec("pm2 flush",{silent: true})
       break;
@@ -60,6 +60,7 @@ function startup(){
 
 function update(){
   api_client.sendNotificationMutation("info", "Se esta actualizando el receptor")
+  shell.exec("pm2 delete iptv-client")
   shell.exec("rm -rf /home/pi/Documents/production/source/.git/index.lock")
   shell.exec("pm2 deploy ecosystem.config.js production --force",function(code, stdout, stderr) {
     if(code != 0){
