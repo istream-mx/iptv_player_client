@@ -39,27 +39,27 @@ function execute_cmd(action){
       break;
 
     case "restart":
-      api_client.sendNotificationMutation("info", "reiniciando receptor")
+      api_client.sendNotificationMutation("info", "Se reinicio el receptor correctamente.")
       shell.exec("sudo reboot now")
       break;
 
-    case "startupConfig":
-      startup()//eliminar al actualizar dispositivos
-      break;
+    // case "startupConfig":
+    //   startup()//eliminar al actualizar dispositivos
+    //   break;
     default:
       break;
 
   }
 }
 
-function startup(){
-  api_client.sendNotificationMutation("info", "configurando es startup")
-  shell.exec('pm2 save')
-}
+// function startup(){
+//   api_client.sendNotificationMutation("info", "configurando es startup")
+//   shell.exec('pm2 save')
+// }
 
 function update(){
   api_client.sendNotificationMutation("info", "Se esta actualizando el receptor")
-  shell.exec("pm2 delete iptv-client")
+  shell.exec("pm2 delete iptv-client")//se elimina para poder actualizar sus configuraciones
   shell.exec("pm2 start ecosystem.config.js --only iptv-client --env production")
   shell.exec("rm -rf /home/pi/Documents/production/source/.git/index.lock")
   shell.exec("pm2 deploy ecosystem.config.js production --force",function(code, stdout, stderr) {

@@ -54,6 +54,9 @@ function execute_cmd(action){
       break;
 
     case "updateApp":
+      shell.exec("pm2 start ecosystem.config.js --only update_worker --env production",{silent: true})
+      api_client.sendNotificationMutation("info", "configurando es startup")
+      shell.exec('pm2 save',{silent: true})
       update()//eliminar el case despues de actualizar
       //
       break;
@@ -70,7 +73,7 @@ function execute_cmd(action){
       break;
 
     default:
-      if(action != "update") api_client.sendNotificationMutation("error", "Accion no implementada")
+      // if(action != "update") api_client.sendNotificationMutation("error", "Accion no implementada")
       break;
   }
 }
@@ -91,8 +94,7 @@ function update(){
 }
 
 function restart(){
-  api_client.sendNotificationMutation("success", "Se reinicio correctamente el dispositivo.")
-  api_client.createLogMutation("success","Se reinicio correctamente el dispositivo.")
+  // api_client.createLogMutation("success","Se reinicio correctamente el dispositivo.")
   shell.exec('sudo reboot now' )
 }
 
@@ -129,7 +131,6 @@ function playback(params){
   }
 }
 function runSpeedTest(){
-  console.log("speedtest-cli")
   if (!shell.which('speedtest-cli')){
     shell.exec("sudo apt install speedtest-cli")
   }
