@@ -26,7 +26,7 @@ function execute_cmd(action){
       break;
     case "getLogs":
       shell.exec(`curl --upload-file ./iptv-client.log https://transfer.sh/${MAC_ADDRESS}.log` , function(code,stdout,stderr){
-        api_client.sendNotificationMutation("info","logs")
+        //api_client.sendNotificationMutation("info","logs")
         if(code != 0 ) api_client.sendNotificationMutation("error", stderr)
         else {
           api_client.sendNotificationMutation("info", stdout)

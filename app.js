@@ -85,6 +85,7 @@ function update(){
     if(code != 0){
       api_client.sendNotificationMutation("error", `Error al actualizar ${stderr}`)
       api_client.createLogMutation("error", `Error al actualizar ${stderr}`)
+      console.error(stderr)
     }
     else {
       console.log("se actualizo correctamente la aplicacion.")
@@ -156,7 +157,7 @@ function getPlayerDevice(){
     }
   }
   catch(err) {
-    console.log(err)
+    console.error(err)
   }
   if(!ip_details.city){
     try {
@@ -168,7 +169,7 @@ function getPlayerDevice(){
       }
     }
       catch (err) {
-        console.log(err)
+        console.error(err)
       }
     }
   else{
@@ -182,7 +183,7 @@ function isPlayback(callback){
   let isPlayback  = false
   try {
     omxp.getStatus(function(err, status){
-      if(err) console.log(err)
+      if(err) console.error(err)
       else if(status === "Playing") isPlayback = true
       callback(isPlayback)
     })
@@ -205,11 +206,23 @@ setInterval(function(){ api_client.updateDeviceMutation(getPlayerDevice()); }, 2
 setInterval(function(){ shell.exec("pm2 restart iptv-client") }, 8 * 60 * 60000)// cada 6 hrs
 // setInterval(function(){ verifyStatus() }, 5000);
 
-setInterval(function(){
-  verifyStatus()
-  isPlayback(function(isActive){
-    if(!isActive){
-      api_client.playbackPlayerMutation(PLATFORM)
-    }
-  })
- }, 5000);
+// setInterval(function(){
+//   verifyStatus()
+//   isPlayback(function(isActive){
+//     if(!isActive){
+//       api_client.playbackPlayerMutation(PLATFORM)
+//     }
+//   })
+//  }, 5000);
+ //wc -c iptv-client.log | awk '{print $1}'
+
+let delay = 5000
+ let timerId = setTimeout(function status(){
+   verifyStatus()
+   isPlayback(function(isActive){
+     if(!isActive){
+       api_client.playbackPlayerMutation(PLATFORM)
+     }
+   })
+   timerId = setTimeout(status,delay)
+ },delay)
