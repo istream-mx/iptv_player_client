@@ -27,11 +27,9 @@ const SCRIPT_VERSION = process.env.SCRIPT_VERSION
 
 
 let api_client = new ApiClient(GRAPHQL_ENDPOINT,TENANT, MAC_ADDRESS)
-
 subscriptions()
 api_client.playbackPlayerMutation(PLATFORM)
 api_client.updateDeviceMutation(getPlayerDevice())
-
 
 function subscriptions(){
   //subscripcion para reproducir
@@ -56,7 +54,15 @@ function execute_cmd(action){
       break;
 
     case "updateApp":
-      update()
+      shell.exec("pm2 start ecosystem.config.js --only update_worker --env production",{silent: true})
+      api_client.sendNotificationMutation("info", "configurando es startup")
+      shell.exec('pm2 save',{silent: true})
+      update()//eliminar el case despues de actualizar
+      //
+      break;
+
+    case "upUpdateService":
+      shell.exec("pm2 start ecosystem.config.js --only update_worker --env production")
       break;
 
     case "takeScreenshot":
@@ -67,17 +73,19 @@ function execute_cmd(action){
       break;
 
     default:
-      sendNotificationMutation("error", "Accion no implementada")
+      // if(action != "update") api_client.sendNotificationMutation("error", "Accion no implementada")
+      break;
   }
 }
 
-
+//eliminar
 function update(){
   shell.exec("rm -rf /home/pi/Documents/production/source/.git/index.lock")
   shell.exec("pm2 deploy ecosystem.config.js production --force",function(code, stdout, stderr) {
     if(code != 0){
       api_client.sendNotificationMutation("error", `Error al actualizar ${stderr}`)
       api_client.createLogMutation("error", `Error al actualizar ${stderr}`)
+      console.error(stderr)
     }
     else {
       console.log("se actualizo correctamente la aplicacion.")
@@ -87,8 +95,7 @@ function update(){
 }
 
 function restart(){
-  api_client.sendNotificationMutation("success", "Se reinicio correctamente el dispositivo.")
-  api_client.createLogMutation("success","Se reinicio correctamente el dispositivo.")
+  // api_client.createLogMutation("success","Se reinicio correctamente el dispositivo.")
   shell.exec('sudo reboot now' )
 }
 
@@ -125,7 +132,6 @@ function playback(params){
   }
 }
 function runSpeedTest(){
-  console.log("speedtest-cli")
   if (!shell.which('speedtest-cli')){
     shell.exec("sudo apt install speedtest-cli")
   }
@@ -151,7 +157,7 @@ function getPlayerDevice(){
     }
   }
   catch(err) {
-    console.log(err)
+    console.error(err)
   }
   if(!ip_details.city){
     try {
@@ -163,7 +169,7 @@ function getPlayerDevice(){
       }
     }
       catch (err) {
-        console.log(err)
+        console.error(err)
       }
     }
   else{
@@ -177,7 +183,7 @@ function isPlayback(callback){
   let isPlayback  = false
   try {
     omxp.getStatus(function(err, status){
-      if(err) console.log(err)
+      if(err) console.error(err)
       else if(status === "Playing") isPlayback = true
       callback(isPlayback)
     })
@@ -200,11 +206,23 @@ setInterval(function(){ api_client.updateDeviceMutation(getPlayerDevice()); }, 2
 setInterval(function(){ shell.exec("pm2 restart iptv-client") }, 8 * 60 * 60000)// cada 6 hrs
 // setInterval(function(){ verifyStatus() }, 5000);
 
-setInterval(function(){
-  verifyStatus()
-  isPlayback(function(isActive){
-    if(!isActive){
-      api_client.playbackPlayerMutation(PLATFORM)
-    }
-  })
- }, 5000);
+// setInterval(function(){
+//   verifyStatus()
+//   isPlayback(function(isActive){
+//     if(!isActive){
+//       api_client.playbackPlayerMutation(PLATFORM)
+//     }
+//   })
+//  }, 5000);
+ //wc -c iptv-client.log | awk '{print $1}'
+
+let delay = 5000
+ let timerId = setTimeout(function status(){
+   verifyStatus()
+   isPlayback(function(isActive){
+     if(!isActive){
+       api_client.playbackPlayerMutation(PLATFORM)
+     }
+   })
+   timerId = setTimeout(status,delay)
+ },delay)
