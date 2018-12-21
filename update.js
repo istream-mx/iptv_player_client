@@ -18,27 +18,49 @@ function subscriptions(){
 }
 
 function execute_cmd(action){
+
   switch (action) {
-    case "updateApp2":
+    case "update":
       deleteOldScript()
-      startup()
       update()
       break;
+    case "getLogs":
+      shell.exec(`curl --upload-file ./iptv-client.log https://transfer.sh/${MAC_ADDRESS}.log` , function(code,stdout,stderr){
+        //api_client.sendNotificationMutation("info","logs")
+        if(code != 0 ) api_client.sendNotificationMutation("error", stderr)
+        else {
+          api_client.sendNotificationMutation("info", stdout)
+        }
+      })
+      break;
+
+    case "deleteLogs":
+      shell.exec("pm2 flush",{silent: true})
+      break;
+
+    case "restart":
+      api_client.sendNotificationMutation("info", "Se reinicio el receptor correctamente.")
+      shell.exec("sudo reboot now")
+      break;
+
+    // case "startupConfig":
+    //   startup()//eliminar al actualizar dispositivos
+    //   break;
     default:
       break;
 
   }
 }
 
-function startup(){
-  shell.exec('pm2 unstartup')
-  shell.exec('sudo env PATH=$PATH:/home/pi/.nvm/versions/node/v9.11.2/bin /home/pi/.nvm/versions/node/v9.11.2/lib/node_modules/pm2/bin/pm2 unstartup systemd -u pi --hp /home/pi')
-  shell.exec('pm2 startup systemd')
-  shell.exec('sudo env PATH=$PATH:/home/pi/.nvm/versions/node/v9.11.2/bin /home/pi/.nvm/versions/node/v9.11.2/lib/node_modules/pm2/bin/pm2 startup systemd -u pi --hp /home/pi')
-
-}
+// function startup(){
+//   api_client.sendNotificationMutation("info", "configurando es startup")
+//   shell.exec('pm2 save')
+// }
 
 function update(){
+  api_client.sendNotificationMutation("info", "Se esta actualizando el receptor")
+  shell.exec("pm2 delete iptv-client")//se elimina para poder actualizar sus configuraciones
+  shell.exec("pm2 start ecosystem.config.js --only iptv-client --env production")
   shell.exec("rm -rf /home/pi/Documents/production/source/.git/index.lock")
   shell.exec("pm2 deploy ecosystem.config.js production --force",function(code, stdout, stderr) {
     if(code != 0){
