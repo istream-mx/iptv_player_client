@@ -8,7 +8,7 @@ module.exports = {
     error_file: 'error.log',
     env: {
       NODE_ENV: 'development',
-      TENANT: "dmM=",
+      TENANT: "Y2FuYWw2",
       PLATFORM: "raspberry",
       PUBLIC_IP_SERVICE: "http://ip-api.com/json",
       SECONDARY_PUBLIC_IP_SERVICE: "http://ipinfo.io/json",
@@ -17,7 +17,7 @@ module.exports = {
     },
     env_production : {
       NODE_ENV: 'production',
-      TENANT: "dmM=",
+      TENANT: "Y2FuYWw2",
       PLATFORM: "raspberry",
       PUBLIC_IP_SERVICE: "http://ip-api.com/json",
       SECONDARY_PUBLIC_IP_SERVICE: "http://ipinfo.io/json",
@@ -32,13 +32,13 @@ module.exports = {
     error_file: "/dev/null",
     env_production : {
       NODE_ENV: 'production',
-      TENANT: "dmM=",
+      TENANT: "Y2FuYWw2",
       PLATFORM: "raspberry",
       GRAPHQL_ENDPOINT: 'ws://canal6.iptv.tvstream.mx/api/socket'
     },
     env: {
       NODE_ENV: 'development',
-      TENANT: "dmM=",
+      TENANT: "Y2FuYWw2",
       PLATFORM: "raspberry",
       GRAPHQL_ENDPOINT: 'ws://canal6.iptv.tvstream.mx/api/socket'
     }
