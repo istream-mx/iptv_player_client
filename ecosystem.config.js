@@ -50,7 +50,7 @@ module.exports = {
       user : 'pi',
       host : 'localhost',
       ref  : 'origin/master',
-      repo : 'git@159.89.43.103:tvstream/iptv-client.git',
+      repo : 'http://159.89.43.103/tvstream/iptv-client.git',
       path: '/home/pi/Documents/production',
       'post-deploy' : 'yarn && pm2 startOrRestart ecosystem.config.js --env production --update-env'
     },
@@ -58,7 +58,7 @@ module.exports = {
       user : 'pi',
       host : 'localhost',
       ref  : 'origin/develop',
-      repo : 'git@159.89.43.103:tvstream/iptv-client.git',
+      repo : 'http://159.89.43.103/tvstream/iptv-client.git',
       path : '/home/pi/Documents/production',
       'post-deploy' : 'yarn && pm2 startOrRestart ecosystem.config.js --env production --update-env'
     }
