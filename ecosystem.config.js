@@ -11,7 +11,7 @@ module.exports = {
       PLATFORM: "raspberry",
       PUBLIC_IP_SERVICE: "http://ip-api.com/json",
       SECONDARY_PUBLIC_IP_SERVICE: "http://ipinfo.io/json",
-      GRAPHQL_ENDPOINT: 'ws://iptv.tvstream.mx/api/socket',
+      GRAPHQL_ENDPOINT: 'ws://ws.iptv.tvstream.mx/api/socket',
       SCRIPT_VERSION: "1.0-test"
     },
     env_production : {
@@ -19,7 +19,7 @@ module.exports = {
       PLATFORM: "raspberry",
       PUBLIC_IP_SERVICE: "http://ip-api.com/json",
       SECONDARY_PUBLIC_IP_SERVICE: "http://ipinfo.io/json",
-      GRAPHQL_ENDPOINT: 'ws://iptv.tvstream.mx/api/socket',
+      GRAPHQL_ENDPOINT: 'ws://ws.iptv.tvstream.mx/api/socket',
       SCRIPT_VERSION: "1.2.3"
     }
   },
@@ -31,12 +31,12 @@ module.exports = {
     env_production : {
       NODE_ENV: 'production',
       PLATFORM: "raspberry",
-      GRAPHQL_ENDPOINT: 'ws://iptv.tvstream.mx/api/socket'
+      GRAPHQL_ENDPOINT: 'ws://ws.iptv.tvstream.mx/api/socket'
     },
     env: {
       NODE_ENV: 'development',
       PLATFORM: "raspberry",
-      GRAPHQL_ENDPOINT: 'ws://iptv.tvstream.mx/api/socket'
+      GRAPHQL_ENDPOINT: 'ws://ws.iptv.tvstream.mx/api/socket'
     }
   }
 ],
