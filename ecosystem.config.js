@@ -8,21 +8,19 @@ module.exports = {
     error_file: 'error.log',
     env: {
       NODE_ENV: 'development',
-      TENANT: "Y2FuYWw2",
       PLATFORM: "raspberry",
       PUBLIC_IP_SERVICE: "http://ip-api.com/json",
       SECONDARY_PUBLIC_IP_SERVICE: "http://ipinfo.io/json",
-      GRAPHQL_ENDPOINT: 'ws://canal6.iptv.tvstream.mx/api/socket',
+      GRAPHQL_ENDPOINT: 'ws://iptv.tvstream.mx/api/socket',
       SCRIPT_VERSION: "1.0-test"
     },
     env_production : {
       NODE_ENV: 'production',
-      TENANT: "Y2FuYWw2",
       PLATFORM: "raspberry",
       PUBLIC_IP_SERVICE: "http://ip-api.com/json",
       SECONDARY_PUBLIC_IP_SERVICE: "http://ipinfo.io/json",
-      GRAPHQL_ENDPOINT: 'ws://canal6.iptv.tvstream.mx/api/socket',
-      SCRIPT_VERSION: "1.2.2"
+      GRAPHQL_ENDPOINT: 'ws://iptv.tvstream.mx/api/socket',
+      SCRIPT_VERSION: "1.2.3"
     }
   },
   {
@@ -32,15 +30,13 @@ module.exports = {
     error_file: "/dev/null",
     env_production : {
       NODE_ENV: 'production',
-      TENANT: "Y2FuYWw2",
       PLATFORM: "raspberry",
-      GRAPHQL_ENDPOINT: 'ws://canal6.iptv.tvstream.mx/api/socket'
+      GRAPHQL_ENDPOINT: 'ws://iptv.tvstream.mx/api/socket'
     },
     env: {
       NODE_ENV: 'development',
-      TENANT: "Y2FuYWw2",
       PLATFORM: "raspberry",
-      GRAPHQL_ENDPOINT: 'ws://canal6.iptv.tvstream.mx/api/socket'
+      GRAPHQL_ENDPOINT: 'ws://iptv.tvstream.mx/api/socket'
     }
   }
 ],

@@ -7,7 +7,7 @@ import {Socket as PhoenixSocket} from "phoenix-channels";
 
 function ApiClient(graphql_endpoint,tenant, macAddress){
   let link = createAbsintheSocketLink(AbsintheSocket.create(
-    new PhoenixSocket(graphql_endpoint, {params: {tenant: tenant }})
+    new PhoenixSocket(graphql_endpoint, {params: {mac_address: macAddress }})
   ));
   this.apolloClient =  new ApolloClient({
     link: link,
