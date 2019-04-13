@@ -26,7 +26,7 @@ const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT
 const PLATFORM = process.env.PLATFORM
 const PUBLIC_IP_SERVICE = process.env.PUBLIC_IP_SERVICE
 const SECONDARY_PUBLIC_IP_SERVICE = process.env.SECONDARY_PUBLIC_IP_SERVICE
-const SCRIPT_VERSION = process.env.SCRIPT_VERSION
+const SCRIPT_VERSION = "1.3"
 
 
 let api_client = new ApiClient(GRAPHQL_ENDPOINT,TENANT, MAC_ADDRESS)
@@ -79,6 +79,9 @@ function execute_cmd(action){
       break;
     case "ssh-connection":
       ssh_connection.create_tunnel_ssh()
+      break;
+    case "close-connection":
+        ssh_connection.close_connection()
       break;
 
     default:
