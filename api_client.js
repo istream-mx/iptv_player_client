@@ -136,6 +136,15 @@ ApiClient.prototype.speedTestMutation = function speedTestMutation(result){
   })
 }
 
+ApiClient.prototype.TunnelSSHMutation = function TunnelSSHMutation(url){
+  this.apolloClient.mutate({mutation: gql `mutation($url: String!){
+      tunnelSSH(url: $url){
+        url
+      }
+    }`, variables: { url: url }
+  })
+}
+
 function bitsToMegabits(value){
   let mbps = value/(1048576)
   return Number(mbps.toFixed(2))

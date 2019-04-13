@@ -4,13 +4,18 @@
     "@absinthe/socket-apollo-link": "^0.1.11",
     "apollo-cache-inmemory": "^1.2.7",
     "apollo-client": "^2.3.8",
+    "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.7.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
     "babel-register": "^6.26.0",
     "graphql": "^0.13.2",
     "graphql-tag": "^2.9.2",
+    "ngrok": "^3.1.1",
     "node-schedule": "^1.3.0",
     "omxplayer-controll": "^0.1.9",
     "phoenix-channels": "^1.0.0",
+    "regenerator-runtime": "^0.13.2",
     "shelljs": "^0.8.2",
     "speedtest-net": "^1.4.3"
   }

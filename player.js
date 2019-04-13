@@ -8,24 +8,25 @@ function Player(options){
 
 }
 
-Player.prototype.play(url, options){
+Player.prototype.play = function(url, options){
+  console.log(`${this.player} ${this.args} ${url}`)
   shell.exec(`${this.player} ${this.args} ${url}`, {async:true})
 }
 
-Player.prototype.stop(){
+Player.prototype.stop = function() {
   shell.exec('sudo killall -s 9 omxplayer')
   shell.exec('sudo killall -s 9 omxplayer.bin')
 }
 
 var parse_args = function (options){
-  let args = ""
+  let args = []
   if(["hdmi", "local", "both"].indexOf(options.audioOutput) != -1)
     args.push(`-o ${options.audioOutput}`)
   if (options.blackBackground !== false)
     args.push('-b');
   if (options.disableKeys === true)
     args.push('--no-keys');
-  if (settings.disableGhostbox === true)
+  if (options.disableGhostbox === true)
     args.push('--no-ghost-box');
   if (options.disableOnScreenDisplay === true)
     args.push('--no-osd')
@@ -38,7 +39,7 @@ var parse_args = function (options){
 }
 
 
-var calculete_volume(startVolume){
+var calculete_volume = function(startVolume){
   var vol = startVolume > 0 ? Math.round(100 * 20 * (Math.log(startVolume) / Math.log(10))) / 1 : -12000000;
   return vol
 }

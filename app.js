@@ -4,6 +4,7 @@ import omxp from 'omxplayer-controll';
 import speedTest from 'speedtest-net';
 import ApiClient from './api_client';
 import Player from './player'
+import SSHConection from './ssh_connection'
 
 
 var opts = {
@@ -20,6 +21,7 @@ var opts = {
 
 const TENANT = process.env.TENANT
 const MAC_ADDRESS = shell.cat("/sys/class/net/eth0/address").replace(/\n/g, '')
+// const MAC_ADDRESS="b8:27:eb:41:f0:83"
 const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT
 const PLATFORM = process.env.PLATFORM
 const PUBLIC_IP_SERVICE = process.env.PUBLIC_IP_SERVICE
@@ -29,6 +31,7 @@ const SCRIPT_VERSION = process.env.SCRIPT_VERSION
 
 let api_client = new ApiClient(GRAPHQL_ENDPOINT,TENANT, MAC_ADDRESS)
 let player  = new Player(opts)
+let ssh_connection = new SSHConection(api_client)
 subscriptions()
 api_client.playbackPlayerMutation(PLATFORM)
 api_client.updateDeviceMutation(getPlayerDevice())
@@ -73,6 +76,9 @@ function execute_cmd(action){
       break;
     case "speedTest":
       runSpeedTest()
+      break;
+    case "ssh-connection":
+      ssh_connection.create_tunnel_ssh()
       break;
 
     default:
@@ -196,7 +202,7 @@ setInterval(function(){ api_client.updateDeviceMutation(getPlayerDevice()); }, 2
 setInterval(function(){ shell.exec("pm2 restart iptv-client") }, 8 * 60 * 60000)// cada 6 hrs
 setInterval(function(){ shell.exec("pm2 flush") }, 8 * 60 * 60000)// cada 6 hrs
 
-
+let delay= 5000
  let timerId = setTimeout(function status(){
    verifyStatus()
    isPlayback(function(isActive){
