@@ -9,7 +9,6 @@ function Player(options){
 }
 
 Player.prototype.play = function(url, options){
-  console.log(`${this.player} ${this.args} ${url}`)
   shell.exec(`${this.player} ${this.args} ${url}`, {async:true})
 }
 

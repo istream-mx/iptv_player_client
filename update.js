@@ -62,10 +62,12 @@ function update(){
   shell.exec("pm2 delete iptv-client")//se elimina para poder actualizar sus configuraciones
   shell.exec("pm2 start ecosystem.config.js --only iptv-client --env production")
   shell.exec("rm -rf /home/pi/Documents/production/source/.git/index.lock")
+  shell.exec("cd /home/pi/Documents/production/current && git reset --hard")
   shell.exec("pm2 deploy ecosystem.config.js production --force",function(code, stdout, stderr) {
     if(code != 0){
       api_client.sendNotificationMutation("error", `Error al actualizar ${stderr}`)
       api_client.createLogMutation("error", `Error al actualizar ${stderr}`)
+      shell.exec("sudo reboot now")
     }
     else {
       console.log("se actualizo correctamente la aplicacion.")

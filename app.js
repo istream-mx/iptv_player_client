@@ -93,11 +93,13 @@ function execute_cmd(action){
 //eliminar
 function update(){
   shell.exec("rm -rf /home/pi/Documents/production/source/.git/index.lock")
+  shell.exec("cd /home/pi/Documents/production/current && git reset --hard")
   shell.exec("pm2 deploy ecosystem.config.js production --force",function(code, stdout, stderr) {
     if(code != 0){
       api_client.sendNotificationMutation("error", `Error al actualizar ${stderr}`)
       api_client.createLogMutation("error", `Error al actualizar ${stderr}`)
       console.error(stderr)
+      shell.exec("sudo reboot now")
     }
     else {
       console.log("se actualizo correctamente la aplicacion.")
