@@ -53,7 +53,7 @@ module.exports = {
     development : {
       user : 'pi',
       host : 'localhost',
-      ref  : 'origin/develop',
+      ref  : 'origin/omx_without_dbus',
       repo : 'http://159.89.43.103/tvstream/iptv-client.git',
       path : '/home/pi/Documents/production',
       'post-deploy' : 'yarn && pm2 startOrRestart ecosystem.config.js --env production --update-env'
