@@ -5,7 +5,7 @@ import speedTest from 'speedtest-net';
 import ApiClient from './api_client';
 import Player from './player'
 import SSHConection from './ssh_connection'
-
+import ip from 'ip'
 
 var opts = {
     'audioOutput': 'local', //  'hdmi' | 'local' | 'both'
@@ -166,7 +166,7 @@ function getPlayerDevice(){
     return {
       macAddress: MAC_ADDRESS,
       scriptVersion: SCRIPT_VERSION,
-      ip: ip_details.query,
+      ip: `${ip_details.query}/${ip.address()}`,
       location: `${ip_details.countryCode}-${ip_details.city}-${ip_details.regionName}-${ip_details.timezone}`
     }
   }
@@ -178,7 +178,7 @@ function getPlayerDevice(){
         ip_details = JSON.parse(shell.exec(`curl -s ${SECONDARY_PUBLIC_IP_SERVICE}`, {silent:true}).stdout)
         return {
           macAddress: MAC_ADDRESS,
-          ip: ip_details.ip,
+          ip: `${ip_details.ip}/${ip.address()}`,
           location: `${ip_details.country}-${ip_details.city}-${ip_details.region}`
       }
     }
