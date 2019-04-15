@@ -127,7 +127,6 @@ function screenShoot(){
 
 function verifyStatus(){
   isPlayback(function(isActive){
-    shell.echo(isActive)
     if(isActive) api_client.statusMutation("active")
     else api_client.statusMutation("inactive")
   })
