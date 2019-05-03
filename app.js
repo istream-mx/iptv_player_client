@@ -26,7 +26,7 @@ const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT
 const PLATFORM = process.env.PLATFORM
 const PUBLIC_IP_SERVICE = process.env.PUBLIC_IP_SERVICE
 const SECONDARY_PUBLIC_IP_SERVICE = process.env.SECONDARY_PUBLIC_IP_SERVICE
-const SCRIPT_VERSION = "1.3"
+const SCRIPT_VERSION = "1.3.1"
 
 
 let api_client = new ApiClient(GRAPHQL_ENDPOINT,TENANT, MAC_ADDRESS)
@@ -55,8 +55,6 @@ function execute_cmd(action){
 
     case "stop":
       player.stop()
-      // shell.exec('sudo killall -s 9 omxplayer')
-      // shell.exec('sudo killall -s 9 omxplayer.bin')
       break;
 
     case "updateApp":
@@ -109,7 +107,6 @@ function update(){
 }
 
 function restart(){
-  // api_client.createLogMutation("success","Se reinicio correctamente el dispositivo.")
   shell.exec('sudo reboot now' )
 }
 
@@ -158,17 +155,30 @@ function runSpeedTest(){
   });
 }
 
+function getTeamviewerId(){
+  if(!shell.which('teamviewer')){
+    return ""
+  }
+  else {
+    let command = "teamviewer info | grep 'TeamViewer ID:' | grep -oE '[0-9]{5,10}' "
+    let id = shell.exec(command, {silent: true}).stdout
+    return id
+  }
+}
+
 
 
 function getPlayerDevice(){
   let ip_details ={}
+  let teamviewerId = getTeamviewerId()
   try {
     ip_details = JSON.parse(shell.exec(`curl -s ${PUBLIC_IP_SERVICE}`, {silent:true}).stdout)
     return {
       macAddress: MAC_ADDRESS,
       scriptVersion: SCRIPT_VERSION,
       ip: `${ip_details.query}/${ip.address()}`,
-      location: `${ip_details.countryCode}-${ip_details.city}-${ip_details.regionName}-${ip_details.timezone}`
+      location: `${ip_details.countryCode}-${ip_details.city}-${ip_details.regionName}-${ip_details.timezone}`,
+      teamviewerId: teamviewerId
     }
   }
   catch(err) {
@@ -180,7 +190,8 @@ function getPlayerDevice(){
         return {
           macAddress: MAC_ADDRESS,
           ip: `${ip_details.ip}/${ip.address()}`,
-          location: `${ip_details.country}-${ip_details.city}-${ip_details.region}`
+          location: `${ip_details.country}-${ip_details.city}-${ip_details.region}`,
+          teamviewerId: teamviewerId
       }
     }
       catch (err) {
@@ -189,7 +200,8 @@ function getPlayerDevice(){
     }
   else{
     return {
-      macAddress: MAC_ADDRESS
+      macAddress: MAC_ADDRESS,
+      teamviewerId: teamviewerId
     }
   }
 }

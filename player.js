@@ -8,13 +8,13 @@ function Player(options){
 
 }
 
-Player.prototype.play = function(url, options){
-  shell.exec(`${this.player} ${this.args} ${url}`, {async:true})
-}
-
 Player.prototype.stop = function() {
   shell.exec('sudo killall -s 9 omxplayer')
   shell.exec('sudo killall -s 9 omxplayer.bin')
+}
+Player.prototype.play = function(url, options){
+  this.stop()
+  shell.exec(`${this.player} ${this.args} ${url}`, {async:true})
 }
 
 var parse_args = function (options){
