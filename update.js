@@ -43,19 +43,13 @@ function execute_cmd(action){
       shell.exec("sudo reboot now")
       break;
 
-    // case "startupConfig":
-    //   startup()//eliminar al actualizar dispositivos
-    //   break;
     default:
       break;
 
   }
 }
 
-// function startup(){
-//   api_client.sendNotificationMutation("info", "configurando es startup")
-//   shell.exec('pm2 save')
-// }
+
 
 function update(){
   api_client.sendNotificationMutation("info", "Se esta actualizando el receptor")
