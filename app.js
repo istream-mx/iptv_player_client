@@ -92,7 +92,7 @@ async function flushLogs(){
   await await delay(22 * 60 * 60000) // cada 22 hrs
   shell.exec("pm2 flush")
 }
-
+infiniteDeviceProperties()
 infiniteStatus()
 restartDevice()
 flushLogs()
