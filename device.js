@@ -22,7 +22,7 @@ class Device {
       ip_details = JSON.parse(shell.exec(`curl -s ${this.publicIpService}`, {silent:true}).stdout)
       return {
         macAddress: this.macAddress,
-        scriptVersion: args.scriptVersion,
+        scriptVersion: this.scriptVersion,
         ip: `${ip_details.query}/${ip.address()}`,
         location: `${ip_details.countryCode}-${ip_details.city}-${ip_details.regionName}-${ip_details.timezone}`,
         teamviewerId: teamviewerId
@@ -38,7 +38,8 @@ class Device {
             macAddress: this.macAddress,
             ip: `${ip_details.ip}/${ip.address()}`,
             location: `${ip_details.country}-${ip_details.city}-${ip_details.region}`,
-            teamviewerId: teamviewerId
+            teamviewerId: teamviewerId,
+            scriptVersion: this.scriptVersion
         }
       }
         catch (err) {
@@ -48,7 +49,8 @@ class Device {
     else{
       return {
         macAddress: this.macAddress,
-        teamviewerId: teamviewerId
+        teamviewerId: teamviewerId,
+        scriptVersion: this.scriptVersion
       }
     }
   }
