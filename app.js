@@ -22,7 +22,7 @@ const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT
 const PLATFORM = process.env.PLATFORM
 const PUBLIC_IP_SERVICE = process.env.PUBLIC_IP_SERVICE
 const SECONDARY_PUBLIC_IP_SERVICE = process.env.SECONDARY_PUBLIC_IP_SERVICE
-const SCRIPT_VERSION = "1.3.2"
+const SCRIPT_VERSION = "1.3.3"
 
 let apiClient = new ApiClient(GRAPHQL_ENDPOINT, MAC_ADDRESS)
 let player  = new Player(opts)

@@ -110,6 +110,7 @@ class Device {
   }
 
   restart(){
+    this.apiClient.sendNotificationMutation("info", "Se reinicio el receptor correctamente.")
     shell.exec('sudo reboot now' )
   }
 

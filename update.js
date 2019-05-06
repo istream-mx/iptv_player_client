@@ -7,15 +7,11 @@ const PLATFORM = process.env.PLATFORM
 
 
 
-let api_client = new ApiClient(GRAPHQL_ENDPOINT,TENANT,MAC_ADDRESS)
-subscriptions()
+let api_client = new ApiClient(GRAPHQL_ENDPOINT,MAC_ADDRESS)
+api_client.subscribeExecuteAction(function(action){
+  execute_cmd(action)
+})
 
-
-function subscriptions(){
-  api_client.subscribeExecuteAction(function(action){
-    execute_cmd(action)
-  })
-}
 
 function execute_cmd(action){
 
@@ -26,7 +22,6 @@ function execute_cmd(action){
       break;
     case "getLogs":
       shell.exec(`curl --upload-file ./iptv-client.log https://transfer.sh/${MAC_ADDRESS}.log` , function(code,stdout,stderr){
-        //api_client.sendNotificationMutation("info","logs")
         if(code != 0 ) api_client.sendNotificationMutation("error", stderr)
         else {
           api_client.sendNotificationMutation("info", stdout)
@@ -36,11 +31,6 @@ function execute_cmd(action){
 
     case "deleteLogs":
       shell.exec("pm2 flush",{silent: true})
-      break;
-
-    case "restart":
-      api_client.sendNotificationMutation("info", "Se reinicio el receptor correctamente.")
-      shell.exec("sudo reboot now")
       break;
 
     default:
