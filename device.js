@@ -67,26 +67,34 @@ class Device {
 
   speedTest(){
     let vm = this
+    let reboot = false
     if (!shell.which('speedtest-cli')){
+      shell.exec("sudo mount -o remount,rw /")
       shell.exec("sudo apt install speedtest-cli")
+      reboot = true
     }
     let child_speed = shell.exec("speedtest-cli --json", function(code, stdout, stderr){
       if(code != 0) this.apiClient.createLogMutation("error", stderr)
       else {
         vm.apiClient.speedTestMutation(JSON.parse(stdout))
       }
+      if (reboot) shell.exec("sudo reboot now")
     });
   }
 
   screenShot(){
     let vm = this
+    let reboot = false
     if (!shell.which('raspi2png')) {
+      shell.exec("sudo mount -o remount,rw /")
       shell.echo('Instalando raspi2png');
       shell.exec("curl -sL https://raw.githubusercontent.com/AndrewFromMelbourne/raspi2png/master/installer.sh | bash -")
+      reboot = true
     }
-    shell.exec("raspi2png -p screenshot.png")
-    shell.exec("curl --upload-file ./screenshot.png https://transfer.sh/screenshot.png", function(code,stout,stderr){
+    shell.exec("raspi2png -p /tmp/screenshot.png")
+    shell.exec("curl --upload-file /tmp/screenshot.png https://transfer.sh/screenshot.png", function(code,stout,stderr){
       vm.apiClient.takeScreenshotMutation(stout)
+      if (reboot) shell.exec("sudo reboot now")
     })
   }
 
