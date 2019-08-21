@@ -15,7 +15,6 @@ class Device {
   }
 
   getInfo(){
-    console.log("get info")
     let ip_details ={}
     let teamviewerId = this.getTeamviewerId()
     try {
@@ -92,6 +91,7 @@ class Device {
   }
 
   update(){
+    shell.exec("sudo mount -o remount,rw /")
     shell.exec("rm -rf /home/pi/Documents/production/source/.git/index.lock")
     shell.exec("cd /home/pi/Documents/production/current && git reset --hard")
     let vm = this
@@ -105,6 +105,7 @@ class Device {
       else {
         console.log("se actualizo correctamente la aplicacion.")
         vm.apiClient.createLogMutation("success", "Se actualizo correctamente el dispositivo.")
+        shell.exec("sudo reboot now")
       }
     })
   }
