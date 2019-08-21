@@ -3,9 +3,6 @@ module.exports = {
     name      : 'iptv-client',
     script    : 'client.js',
     log_type: 'json',
-    log_file: 'iptv-client.log',
-    out_file: 'out.log',
-    error_file: 'error.log',
     env: {
       NODE_ENV: 'development',
       PLATFORM: "raspberry",
@@ -24,8 +21,6 @@ module.exports = {
   {
     name      : 'update_worker',
     script    : 'client_update.js',
-    out_file: "/dev/null",
-    error_file: "/dev/null",
     env_production : {
       NODE_ENV: 'production',
       PLATFORM: "raspberry",
