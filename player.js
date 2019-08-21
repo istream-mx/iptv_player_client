@@ -1,21 +1,29 @@
-
 import shell from 'shelljs';
 
 
-function Player(options){
-  this.player = "omxplayer";
-  this.args = parse_args(options);
+class Player {
+  constructor(options) {
+    this.player = "omxplayer";
+    this.args = parse_args(options);
+  }
 
-}
-
-Player.prototype.play = function(url, options){
-  console.log(`${this.player} ${this.args} ${url}`)
-  shell.exec(`${this.player} ${this.args} ${url}`, {async:true})
-}
-
-Player.prototype.stop = function() {
-  shell.exec('sudo killall -s 9 omxplayer')
-  shell.exec('sudo killall -s 9 omxplayer.bin')
+  play(url){
+    this.stop()
+    shell.exec(`${this.player} ${this.args} ${url}`, {async:true})
+  }
+  stop(){
+    this.isPlayback(function(playing){
+      if(playing){
+        shell.exec('sudo killall -s 9 omxplayer')
+        shell.exec('sudo killall -s 9 omxplayer.bin')
+      }
+    })
+  }
+  isPlayback(callback){
+    let process = shell.exec('ps -A | grep -c omxplayer',{silent:true}).stdout.replace(/\n/g, '')
+    if(process > 0) callback(true)
+    else callback(false)
+  }
 }
 
 var parse_args = function (options){

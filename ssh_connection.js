@@ -13,7 +13,6 @@ function SSHConection(apiClient){
 SSHConection.prototype.create_tunnel_ssh = async function create_tunnel_ssh(){
   try {
     const url = await ngrok.connect({authtoken: token, proto: 'tcp', addr: 22})
-    console.log(url)
     // this.api_client.TunnelSSHMutation(url)
 
   } catch (err) {
