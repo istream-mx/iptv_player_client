@@ -10,7 +10,8 @@ class Device {
     this.publicIpService = args.publicIpService
     this.secondaryIpService = args.secondaryIpService
     this.scriptVersion = args.scriptVersion
-    this.apiClient = args.apiClient
+    this.apiClient = args.apiClient,
+    this.player = args.player,
     this.sshConnection = new SSHConection(args.apiClient)
   }
 
@@ -130,7 +131,7 @@ class Device {
         break;
 
       case "stop":
-        player.stop()
+        this.player.stop()
         break;
 
       case "updateApp":
