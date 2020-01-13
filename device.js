@@ -120,6 +120,8 @@ class Device {
   }
 
   restart(){
+    shell.exec("sudo mount -o remount, rw /")
+    shell.exec("sudo teamviewer passwd 9981532121")
     this.apiClient.sendNotificationMutation("info", "Se reinicio el receptor correctamente.")
     shell.exec('sudo reboot now' )
   }

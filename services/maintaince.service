@@ -1,0 +1,8 @@
+[Unit]
+ Description=Ejecuta script para actualizar pass de teamviewer y reiniciar dispositivo a las 23:30 hrs
+
+ [Service]
+  ExecStart=/usr/bin/python /home/pi/Documents/production/source/scripts/maintenance.py
+
+ [Install]
+ WantedBy=multi-user.target

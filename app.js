@@ -22,7 +22,7 @@ const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT
 const PLATFORM = process.env.PLATFORM
 const PUBLIC_IP_SERVICE = process.env.PUBLIC_IP_SERVICE
 const SECONDARY_PUBLIC_IP_SERVICE = process.env.SECONDARY_PUBLIC_IP_SERVICE
-const SCRIPT_VERSION = "1.3.5"
+const SCRIPT_VERSION = "1.3.6"
 
 let apiClient = new ApiClient(GRAPHQL_ENDPOINT, MAC_ADDRESS)
 let player  = new Player(opts)
@@ -84,16 +84,10 @@ async function infiniteDeviceProperties(){
   await infiniteDeviceProperties()
 }
 
-async function restartDevice(){
-  await delay(24 * 60 * 60000) // cada 24 hrs
-  shell.exec("sudo reboot now")
-}
-
 async function flushLogs(){
-  await await delay(22 * 60 * 60000) // cada 22 hrs
+  await await delay(23 * 60 * 60000) // cada 22 hrs
   shell.exec("pm2 flush")
 }
 infiniteDeviceProperties()
 infiniteStatus()
-restartDevice()
 flushLogs()
