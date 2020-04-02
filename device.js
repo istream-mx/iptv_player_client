@@ -3,6 +3,18 @@ import shell from 'shelljs';
 import ip from 'ip'
 import speedTest from 'speedtest-net';
 import SSHConection from './ssh_connection'
+import Player from "./player"
+
+
+var opts = {
+  // 'audioOutput': 'local', //  'hdmi' | 'local' | 'both'
+  'blackBackground': true, //false | true | default: true
+  'disableKeys': true, //false | true | default: false
+  'disableOnScreenDisplay': true, //false | true | default: false
+  'disableGhostbox': true, //false | true | default: false
+  'startVolume': 1.0, //0.0 ... 1.0 default: 1.0,
+  'closeOtherPlayers': true
+};
 
 class Device {
   constructor(args) {
@@ -11,10 +23,20 @@ class Device {
     this.secondaryIpService = args.secondaryIpService
     this.scriptVersion = args.scriptVersion
     this.apiClient = args.apiClient,
-    this.player = args.player,
     this.sshConnection = new SSHConection(args.apiClient)
+    this.player = this.initPlayer()
   }
-
+  initPlayer(){
+    this.apiClient.getPlayerConfiguration((data) => {
+      console.log(data)
+      console.log({
+        ...opts,
+        ...data.device.config
+      })
+      this.player = new Player({...opts, ...data.device.player_config})
+    })
+    
+  }
   getInfo(){
     let ip_details ={}
     let teamviewerId = this.getTeamviewerId()

@@ -27,6 +27,7 @@ class Player {
 }
 
 var parse_args = function (options){
+  options = setDefaultValues(options)
   let args = []
   if(["hdmi", "local", "both"].indexOf(options.audioOutput) != -1)
     args.push(`-o ${options.audioOutput}`)
@@ -44,6 +45,15 @@ var parse_args = function (options){
   }
   return args.join(" ")
 
+}
+
+var setDefaultValues = function(opts){
+  opts["audioOutput"] = opts["audioOutput"] || "local"
+  opts["blackBackground"] = opts["blackBackground"] || true
+  opts["disableKeys"] = opts["disableKeys"] || true
+  opts["disableGhostbox"] = opts["disableGhostbox"] || true
+  opts["disableOnScreenDisplay"] = opts["disableOnScreenDisplay"] || true
+  opts["startVolume"] = opts["startVolume"] || 1.0
 }
 
 

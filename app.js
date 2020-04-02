@@ -1,17 +1,8 @@
-import Player from './player'
 import Device from './device'
 import shell from 'shelljs';
 import ApiClient from './api_client';
 
-var opts = {
-    'audioOutput': 'local', //  'hdmi' | 'local' | 'both'
-    'blackBackground': true, //false | true | default: true
-    'disableKeys': true, //false | true | default: false
-    'disableOnScreenDisplay': true, //false | true | default: false
-    'disableGhostbox': true, //false | true | default: false
-    'startVolume': 1.0 ,//0.0 ... 1.0 default: 1.0,
-    'closeOtherPlayers': true
-};
+
 
 
 
@@ -25,14 +16,12 @@ const SECONDARY_PUBLIC_IP_SERVICE = process.env.SECONDARY_PUBLIC_IP_SERVICE
 const SCRIPT_VERSION = "1.3.5"
 
 let apiClient = new ApiClient(GRAPHQL_ENDPOINT, MAC_ADDRESS)
-let player  = new Player(opts)
 let device = new Device({
   macAddress: MAC_ADDRESS,
   publicIpService: PUBLIC_IP_SERVICE,
   secondaryIpService: SECONDARY_PUBLIC_IP_SERVICE,
   scriptVersion: SCRIPT_VERSION,
-  apiClient: apiClient,
-  player: player
+  apiClient: apiClient
 })
 
 
@@ -50,7 +39,7 @@ function subscriptions(){
       apiClient.createLogMutation("error", params.error)
     }
     else{
-      player.play(params.url, opts)
+      device.player.play(params.url, opts)
       apiClient.createLogMutation("info", `url a reproducir: ${params.url}`)
 
     }
@@ -65,7 +54,7 @@ function subscriptions(){
 const delay = ms => new Promise(res => setTimeout(res,ms))
 
 async function infiniteStatus(){
-  player.isPlayback(function(isActive){
+  device.player.isPlayback(function(isActive){
     if(!isActive) {
       apiClient.playbackPlayerMutation(PLATFORM)
       apiClient.statusMutation("inactive")
