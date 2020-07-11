@@ -3,6 +3,8 @@ import shell from 'shelljs';
 import ip from 'ip'
 import speedTest from 'speedtest-net';
 import SSHConection from './ssh_connection'
+import Player from "./player"
+
 
 class Device {
   constructor(args) {
@@ -11,9 +13,10 @@ class Device {
     this.secondaryIpService = args.secondaryIpService
     this.scriptVersion = args.scriptVersion
     this.apiClient = args.apiClient,
-    this.player = args.player,
     this.sshConnection = new SSHConection(args.apiClient)
+    this.player = new Player(args.apiClient)
   }
+  
 
   getInfo(){
     let ip_details ={}
@@ -93,9 +96,30 @@ class Device {
       reboot = true
     }
     shell.exec("raspi2png -p /tmp/screenshot.png")
-    shell.exec("curl --upload-file /tmp/screenshot.png https://transfer.sh/screenshot.png", function(code,stout,stderr){
-      vm.apiClient.takeScreenshotMutation(stout)
-      if (reboot) shell.exec("sudo reboot now")
+    if (reboot) shell.exec("sudo reboot now")
+    this.uploadFile("/tmp/screenshot.png")
+    
+  }
+
+  uploadFile(path){
+    let vm = this
+    shell.exec(`curl --upload-file ${path} https://transfer.sh/screenshot.png`, function (code, stout, stderr) {
+      if(stout.includes("http")){
+        vm.apiClient.takeScreenshotMutation(stout)
+      } 
+      else{
+        vm.uploadFileFallBack(path)
+      }
+      
+      
+    })
+  }
+
+  uploadFileFallBack(path){
+    let vm = this
+    shell.exec(`curl -F "file=@${path}" https://file.io`, function (code, stout, stderr) {
+      let data = JSON.parse(stout)
+      vm.apiClient.takeScreenshotMutation(data.link)
     })
   }
 
