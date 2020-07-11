@@ -7,7 +7,6 @@ class Player {
     let wm = this
     apiClient.getPlayerConfiguration(function(data) {
       let args = parse_args(data.device.playerConfig);
-      console.log(args)
       wm.args = args
     })
     
@@ -34,7 +33,6 @@ class Player {
 }
 
 var parse_args = function (options){
-  console.log("opciones", options)
   options = setDefaultValues(options)
   let args = []
   if(["hdmi", "local", "both"].indexOf(options.audioOutput) != -1)
