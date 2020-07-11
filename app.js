@@ -13,7 +13,7 @@ const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT
 const PLATFORM = process.env.PLATFORM
 const PUBLIC_IP_SERVICE = process.env.PUBLIC_IP_SERVICE
 const SECONDARY_PUBLIC_IP_SERVICE = process.env.SECONDARY_PUBLIC_IP_SERVICE
-const SCRIPT_VERSION = "1.3.5"
+const SCRIPT_VERSION = "1.3.6"
 
 let apiClient = new ApiClient(GRAPHQL_ENDPOINT, MAC_ADDRESS)
 let device = new Device({
@@ -39,7 +39,8 @@ function subscriptions(){
       apiClient.createLogMutation("error", params.error)
     }
     else{
-      device.player.play(params.url, opts)
+      
+      device.player.play(params.url)
       apiClient.createLogMutation("info", `url a reproducir: ${params.url}`)
 
     }

@@ -2,9 +2,16 @@ import shell from 'shelljs';
 
 
 class Player {
-  constructor(options) {
+  constructor(apiClient) {
     this.player = "omxplayer";
-    this.args = parse_args(options);
+    let wm = this
+    apiClient.getPlayerConfiguration(function(data) {
+      let args = parse_args(data.device.playerConfig);
+      console.log(args)
+      wm.args = args
+    })
+    
+    
   }
 
   play(url){
@@ -27,6 +34,7 @@ class Player {
 }
 
 var parse_args = function (options){
+  console.log("opciones", options)
   options = setDefaultValues(options)
   let args = []
   if(["hdmi", "local", "both"].indexOf(options.audioOutput) != -1)
@@ -54,6 +62,8 @@ var setDefaultValues = function(opts){
   opts["disableGhostbox"] = opts["disableGhostbox"] || true
   opts["disableOnScreenDisplay"] = opts["disableOnScreenDisplay"] || true
   opts["startVolume"] = opts["startVolume"] || 1.0
+  opts["closeOtherPlayers"] = true
+  return opts
 }
 
 

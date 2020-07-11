@@ -6,16 +6,6 @@ import SSHConection from './ssh_connection'
 import Player from "./player"
 
 
-var opts = {
-  // 'audioOutput': 'local', //  'hdmi' | 'local' | 'both'
-  'blackBackground': true, //false | true | default: true
-  'disableKeys': true, //false | true | default: false
-  'disableOnScreenDisplay': true, //false | true | default: false
-  'disableGhostbox': true, //false | true | default: false
-  'startVolume': 1.0, //0.0 ... 1.0 default: 1.0,
-  'closeOtherPlayers': true
-};
-
 class Device {
   constructor(args) {
     this.macAddress = args.macAddress;
@@ -24,19 +14,10 @@ class Device {
     this.scriptVersion = args.scriptVersion
     this.apiClient = args.apiClient,
     this.sshConnection = new SSHConection(args.apiClient)
-    this.player = this.initPlayer()
+    this.player = new Player(args.apiClient)
   }
-  initPlayer(){
-    this.apiClient.getPlayerConfiguration((data) => {
-      console.log(data)
-      console.log({
-        ...opts,
-        ...data.device.config
-      })
-      this.player = new Player({...opts, ...data.device.player_config})
-    })
-    
-  }
+  
+
   getInfo(){
     let ip_details ={}
     let teamviewerId = this.getTeamviewerId()
@@ -115,9 +96,30 @@ class Device {
       reboot = true
     }
     shell.exec("raspi2png -p /tmp/screenshot.png")
-    shell.exec("curl --upload-file /tmp/screenshot.png https://transfer.sh/screenshot.png", function(code,stout,stderr){
-      vm.apiClient.takeScreenshotMutation(stout)
-      if (reboot) shell.exec("sudo reboot now")
+    if (reboot) shell.exec("sudo reboot now")
+    this.uploadFile("/tmp/screenshot.png")
+    
+  }
+
+  uploadFile(path){
+    let vm = this
+    shell.exec(`curl --upload-file ${path} https://transfer.sh/screenshot.png`, function (code, stout, stderr) {
+      if(stout.includes("http")){
+        vm.apiClient.takeScreenshotMutation(stout)
+      } 
+      else{
+        vm.uploadFileFallBack(path)
+      }
+      
+      
+    })
+  }
+
+  uploadFileFallBack(path){
+    let vm = this
+    shell.exec(`curl -F "file=@${path}" https://file.io`, function (code, stout, stderr) {
+      let data = JSON.parse(stout)
+      vm.apiClient.takeScreenshotMutation(data.link)
     })
   }
 

@@ -21,13 +21,14 @@ class ApiClient {
     this.apolloClient.query({ query: gql `query($macAddress: String!){
       device(macAddress: $macAddress){
         mac_address
-        config
+        playerConfig
         name
       }
     }`, variables: { macAddress: this.macAddress}})
     .then(data => {
       callback(data.data)
     })
+    .catch(error => {callback(error)});
   }
 
   subscribePlayback(callback){
