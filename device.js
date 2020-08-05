@@ -63,7 +63,7 @@ class Device {
       return ""
     }
     else {
-      let command = "teamviewer info | grep 'TeamViewer ID:' | grep -oE '[0-9]{5,10}' "
+      let command = "sudo teamviewer info | grep 'TeamViewer ID:' | grep -oE '[0-9]{5,10}' "
       let id = shell.exec(command, {silent: true}).stdout
       return id
     }
