@@ -13,7 +13,7 @@ const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT
 const PLATFORM = process.env.PLATFORM
 const PUBLIC_IP_SERVICE = process.env.PUBLIC_IP_SERVICE
 const SECONDARY_PUBLIC_IP_SERVICE = process.env.SECONDARY_PUBLIC_IP_SERVICE
-const SCRIPT_VERSION = "1.3.6"
+const SCRIPT_VERSION = "1.3.6.1"
 
 let apiClient = new ApiClient(GRAPHQL_ENDPOINT, MAC_ADDRESS)
 let device = new Device({
@@ -85,5 +85,5 @@ async function flushLogs(){
 }
 infiniteDeviceProperties()
 infiniteStatus()
-restartDevice()
+// restartDevice()
 flushLogs()
