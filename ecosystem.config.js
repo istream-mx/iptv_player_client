@@ -39,7 +39,7 @@ module.exports = {
       user : 'pi',
       host : 'localhost',
       ref  : 'origin/master',
-      repo : 'http://159.89.43.103/tvstream/iptv-client.git',
+      repo : 'https://github.com/istream-mx/iptv_player_client.git',
       path: '/home/pi/Documents/production',
       'post-deploy' : 'yarn && pm2 startOrRestart ecosystem.config.js --env production --update-env'
     },
@@ -47,7 +47,7 @@ module.exports = {
       user : 'pi',
       host : 'localhost',
       ref  : 'origin/omx_without_dbus',
-      repo : 'http://159.89.43.103/tvstream/iptv-client.git',
+      repo : 'https://github.com/istream-mx/iptv_player_client.git',
       path : '/home/pi/Documents/production',
       'post-deploy' : 'yarn && pm2 startOrRestart ecosystem.config.js --env production --update-env'
     }
